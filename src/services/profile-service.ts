@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import type { PlayerProfile } from "@/types/player-profile";
@@ -34,7 +35,10 @@ function fromRow(row: ProfileRow): PlayerProfile {
   };
 }
 
-export async function getProfileByUserId(userId: string): Promise<PlayerProfile | undefined> {
+/** Memoized per-request — called from many pages plus getViewer()/get-club-viewer()
+ * on the same navigation; cache() collapses repeat calls for the same userId
+ * into a single query instead of re-fetching each time. */
+export const getProfileByUserId = cache(async (userId: string): Promise<PlayerProfile | undefined> => {
   const supabase = await createSupabaseServerClient();
   const { data } = await supabase
     .from("player_profiles")
@@ -42,7 +46,7 @@ export async function getProfileByUserId(userId: string): Promise<PlayerProfile 
     .eq("user_id", userId)
     .maybeSingle();
   return data ? fromRow(data as ProfileRow) : undefined;
-}
+});
 
 export async function getProfileById(id: string): Promise<PlayerProfile | undefined> {
   const admin = createSupabaseAdminClient();

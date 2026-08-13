@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { getSession } from "@/lib/auth/session";
 import { getClubBySlug, getMembership } from "@/services/club-service";
 import { getProfileByUserId } from "@/services/profile-service";
@@ -15,8 +16,12 @@ export interface ClubViewer {
   currentMatchId: string | null;
 }
 
-/** Club-scoped viewer — resolves the club by slug and the caller's role in it. */
-export async function getClubViewer(clubSlug: string): Promise<ClubViewer | null> {
+/** Club-scoped viewer — resolves the club by slug and the caller's role in it.
+ * Memoized per-request (keyed on clubSlug): the club layout calls this, and
+ * every page nested under it calls it again independently since Server
+ * Component pages can't read the layout's React Context — cache() collapses
+ * those into a single set of queries instead of running them twice. */
+export const getClubViewer = cache(async (clubSlug: string): Promise<ClubViewer | null> => {
   const club = await getClubBySlug(clubSlug);
   if (!club) return null;
 
@@ -25,8 +30,12 @@ export async function getClubViewer(clubSlug: string): Promise<ClubViewer | null
     return { club, membership: null, isStaff: false, unreadNotifications: 0, activeRegistrationId: null, currentMatchId: null };
   }
 
-  const membership = (await getMembership(club.id, user.id)) ?? null;
-  const profile = await getProfileByUserId(user.id);
+  const [membership, profile, unreadNotifications] = await Promise.all([
+    getMembership(club.id, user.id),
+    getProfileByUserId(user.id),
+    getUnreadCount(user.id, club.id),
+  ]);
+
   const registrations = profile ? await getRegistrationsForPlayer(profile.id, club.id) : [];
   const activeRegistration = registrations[0];
   const currentMatch =
@@ -36,10 +45,10 @@ export async function getClubViewer(clubSlug: string): Promise<ClubViewer | null
 
   return {
     club,
-    membership,
+    membership: membership ?? null,
     isStaff: isStaffRole(membership?.role),
-    unreadNotifications: await getUnreadCount(user.id, club.id),
+    unreadNotifications,
     activeRegistrationId: activeRegistration?.id ?? null,
     currentMatchId: currentMatch?.id ?? null,
   };
-}
+});

@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import type { Club, ClubMembership, ClubRole } from "@/types/club";
@@ -62,11 +63,14 @@ function membershipFromRow(row: MembershipRow): ClubMembership {
   };
 }
 
-export async function getClubBySlug(slug: string): Promise<Club | undefined> {
+/** Memoized per-request — called independently by ~2 dozen pages/actions
+ * plus getClubViewer() on the same navigation; cache() collapses repeat
+ * calls for the same slug into a single query. */
+export const getClubBySlug = cache(async (slug: string): Promise<Club | undefined> => {
   const admin = createSupabaseAdminClient();
   const { data } = await admin.from("clubs").select("*").eq("slug", slug).maybeSingle();
   return data ? clubFromRow(data as ClubRow) : undefined;
-}
+});
 
 export async function getClubById(id: string): Promise<Club | undefined> {
   const admin = createSupabaseAdminClient();
