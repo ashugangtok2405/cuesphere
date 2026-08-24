@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Poppins, Inter, Roboto_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/shared/theme-provider";
@@ -32,6 +32,16 @@ export const metadata: Metadata = {
   },
   description:
     "The Complete Operating System for Snooker & Pool Clubs — tournaments, live scoring, registrations and more.",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "CueSphere",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0b0e12",
 };
 
 export default async function RootLayout({

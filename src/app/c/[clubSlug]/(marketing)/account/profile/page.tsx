@@ -6,6 +6,7 @@ import { getProfileByUserId } from "@/services/profile-service";
 import { clubPath } from "@/lib/club-path";
 import { PageHero } from "@/components/shared/page-hero";
 import { ProfileForm } from "@/features/profile/components/profile-form";
+import { NotificationOptIn } from "@/features/profile/components/notification-opt-in";
 
 export const metadata: Metadata = { title: "Complete Your Profile" };
 
@@ -38,7 +39,8 @@ export default async function ProfilePage({
         description="A complete profile is required before you can register for tournaments."
         breadcrumbs={[{ label: "Home", href: "/" }, { label: "Profile" }]}
       />
-      <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-5xl space-y-6 px-4 py-10 sm:px-6 lg:px-8">
+        <NotificationOptIn />
         <ProfileForm profile={profile} redirectTo={redirectTo} />
       </div>
     </>

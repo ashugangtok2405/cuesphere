@@ -6,6 +6,7 @@ import { getProfileByUserId } from "@/services/profile-service";
 import { PlatformHeader } from "@/components/layout/platform-header";
 import { PlatformFooter } from "@/components/layout/platform-footer";
 import { ProfileForm } from "@/features/profile/components/profile-form";
+import { NotificationOptIn } from "@/features/profile/components/notification-opt-in";
 
 export const metadata: Metadata = { title: "My Profile" };
 
@@ -34,7 +35,8 @@ export default async function PlatformProfilePage({
           <p className="mt-1 text-sm text-muted-foreground">
             Keep your details up to date across every club you're part of.
           </p>
-          <div className="mt-8">
+          <div className="mt-8 space-y-6">
+            <NotificationOptIn />
             <ProfileForm profile={profile} redirectTo={redirectTo} />
           </div>
         </div>

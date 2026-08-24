@@ -22,6 +22,7 @@ import { getRegisteredPlayerIds } from "@/services/registration-service";
 import type { MatchStatus } from "@/types/match";
 import { getProfileByUserId } from "@/services/profile-service";
 import { getProfileCompletion } from "@/types/player-profile";
+import { notifyNewTournament } from "@/services/push-notification-service";
 import type { ClubTournament, PrizeBreakdownItem } from "@/types/club-tournament";
 
 /** Excludes scorekeeper-only accounts — used for anything beyond
@@ -62,6 +63,10 @@ export async function createClubTournamentAction(
 
   const result = await createClubTournament({ clubId: check.club.id, ...input });
   if ("error" in result) return { success: false as const, error: result.error };
+
+  await notifyNewTournament(check.club.name, check.club.slug, result.tournament.name, result.tournament.slug).catch(
+    () => {}
+  );
 
   return { success: true as const, slug: result.tournament.slug };
 }
