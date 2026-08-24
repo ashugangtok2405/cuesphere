@@ -18,6 +18,10 @@ interface ClubRow {
   email: string;
   google_maps_url: string;
   social_links: Record<string, string>;
+  about_text: string;
+  rules_text: string;
+  membership_text: string;
+  privacy_policy_text: string;
   status: Club["status"];
   created_at: string;
 }
@@ -47,6 +51,10 @@ function clubFromRow(row: ClubRow): Club {
     email: row.email,
     googleMapsUrl: row.google_maps_url,
     socialLinks: row.social_links ?? {},
+    aboutText: row.about_text ?? "",
+    rulesText: row.rules_text ?? "",
+    membershipText: row.membership_text ?? "",
+    privacyPolicyText: row.privacy_policy_text ?? "",
     status: row.status,
     createdAt: row.created_at,
   };
@@ -168,6 +176,10 @@ export async function updateClub(
     email?: string;
     googleMapsUrl?: string;
     socialLinks?: Record<string, string>;
+    aboutText?: string;
+    rulesText?: string;
+    membershipText?: string;
+    privacyPolicyText?: string;
   }
 ): Promise<void> {
   const supabase = await createSupabaseServerClient();
@@ -184,6 +196,10 @@ export async function updateClub(
       ...(input.email !== undefined ? { email: input.email } : {}),
       ...(input.googleMapsUrl !== undefined ? { google_maps_url: input.googleMapsUrl } : {}),
       ...(input.socialLinks !== undefined ? { social_links: input.socialLinks } : {}),
+      ...(input.aboutText !== undefined ? { about_text: input.aboutText } : {}),
+      ...(input.rulesText !== undefined ? { rules_text: input.rulesText } : {}),
+      ...(input.membershipText !== undefined ? { membership_text: input.membershipText } : {}),
+      ...(input.privacyPolicyText !== undefined ? { privacy_policy_text: input.privacyPolicyText } : {}),
     })
     .eq("id", clubId)
     .select("id");

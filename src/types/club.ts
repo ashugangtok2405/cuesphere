@@ -29,6 +29,10 @@ export interface Club {
   email: string;
   googleMapsUrl: string;
   socialLinks: Record<string, string>;
+  aboutText: string;
+  rulesText: string;
+  membershipText: string;
+  privacyPolicyText: string;
   status: ClubStatus;
   createdAt: string;
 }

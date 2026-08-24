@@ -26,6 +26,10 @@ const schema = z.object({
   twitter: z.string().optional(),
   instagram: z.string().optional(),
   youtube: z.string().optional(),
+  aboutText: z.string().optional(),
+  rulesText: z.string().optional(),
+  membershipText: z.string().optional(),
+  privacyPolicyText: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -47,6 +51,10 @@ export function UpdateClubSettingsForm({ clubSlug, club }: { clubSlug: string; c
       twitter: club.socialLinks.twitter ?? "",
       instagram: club.socialLinks.instagram ?? "",
       youtube: club.socialLinks.youtube ?? "",
+      aboutText: club.aboutText,
+      rulesText: club.rulesText,
+      membershipText: club.membershipText,
+      privacyPolicyText: club.privacyPolicyText,
     },
   });
 
@@ -66,6 +74,10 @@ export function UpdateClubSettingsForm({ clubSlug, club }: { clubSlug: string; c
         instagram: values.instagram ?? "",
         youtube: values.youtube ?? "",
       },
+      aboutText: values.aboutText,
+      rulesText: values.rulesText,
+      membershipText: values.membershipText,
+      privacyPolicyText: values.privacyPolicyText,
     });
     setIsSubmitting(false);
 
@@ -141,6 +153,31 @@ export function UpdateClubSettingsForm({ clubSlug, club }: { clubSlug: string; c
             <Label htmlFor="youtube">YouTube</Label>
             <Input id="youtube" placeholder="https://youtube.com/@yourclub" {...register("youtube")} />
           </div>
+        </div>
+      </div>
+
+      <div className="space-y-4 border-t border-border pt-5">
+        <div>
+          <h3 className="text-sm font-semibold text-foreground">Information Pages</h3>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Shown on your club's About, Rules, Membership and Privacy Policy pages (linked from the footer).
+          </p>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="aboutText">About Us</Label>
+          <Textarea id="aboutText" rows={4} placeholder="Tell visitors about your club..." {...register("aboutText")} />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="rulesText">Rules</Label>
+          <Textarea id="rulesText" rows={4} placeholder="House rules, dress code, conduct..." {...register("rulesText")} />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="membershipText">Membership</Label>
+          <Textarea id="membershipText" rows={4} placeholder="Membership tiers, fees, how to join..." {...register("membershipText")} />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="privacyPolicyText">Privacy Policy</Label>
+          <Textarea id="privacyPolicyText" rows={4} placeholder="How you handle members' data..." {...register("privacyPolicyText")} />
         </div>
       </div>
 

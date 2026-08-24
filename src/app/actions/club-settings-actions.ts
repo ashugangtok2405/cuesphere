@@ -15,6 +15,10 @@ export async function updateClubSettingsAction(
     email?: string;
     googleMapsUrl?: string;
     socialLinks?: Record<string, string>;
+    aboutText?: string;
+    rulesText?: string;
+    membershipText?: string;
+    privacyPolicyText?: string;
   }
 ) {
   const session = await getSession();
@@ -42,6 +46,10 @@ export async function updateClubSettingsAction(
       email: input.email,
       googleMapsUrl: input.googleMapsUrl,
       socialLinks: input.socialLinks,
+      aboutText: input.aboutText,
+      rulesText: input.rulesText,
+      membershipText: input.membershipText,
+      privacyPolicyText: input.privacyPolicyText,
     });
   } catch (err) {
     return { success: false as const, error: err instanceof Error ? err.message : "Failed to save settings." };
