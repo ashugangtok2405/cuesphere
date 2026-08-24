@@ -3,11 +3,13 @@ import { redirect } from "next/navigation";
 import { Building2 } from "lucide-react";
 
 import { getSession } from "@/lib/auth/session";
-import { getClubById, listMembershipsForUser } from "@/services/club-service";
+import { getClubById, listMembershipsForUser, listMembershipsForClub } from "@/services/club-service";
+import { listClubTournaments } from "@/services/club-tournament-service";
 import { PlatformHeader } from "@/components/layout/platform-header";
 import { PlatformFooter } from "@/components/layout/platform-footer";
 import { EmptyState } from "@/components/shared/empty-state";
 import { LinkButton } from "@/components/shared/link-button";
+import { ClubCard } from "@/features/platform/components/club-card";
 
 export const metadata: Metadata = { title: "My Clubs" };
 
@@ -26,19 +28,29 @@ export default async function MyClubsPage() {
   }
 
   const memberships = await listMembershipsForUser(session.id);
-  const clubs = await Promise.all(
-    memberships.map(async (m) => ({
-      membership: m,
-      club: await getClubById(m.clubId),
-    }))
+  const entries = await Promise.all(
+    memberships.map(async (membership) => {
+      const club = await getClubById(membership.clubId);
+      if (!club) return null;
+      const [tournaments, members] = await Promise.all([
+        listClubTournaments(club.id),
+        listMembershipsForClub(club.id),
+      ]);
+      return {
+        membership,
+        club,
+        tournamentCount: tournaments.length,
+        memberCount: members.length,
+      };
+    })
   );
-  const validClubs = clubs.filter((c) => c.club);
+  const validClubs = entries.filter((e): e is NonNullable<typeof e> => e !== null);
 
   return (
     <div className="flex min-h-screen flex-col">
       <PlatformHeader />
       <main className="flex-1">
-        <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
           <h1 className="font-heading text-2xl font-bold text-foreground">My Clubs</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Every club you&apos;ve joined, across CueSphere.
@@ -53,23 +65,15 @@ export default async function MyClubsPage() {
               action={<LinkButton href="/clubs">Browse Clubs</LinkButton>}
             />
           ) : (
-            <div className="mt-8 space-y-3">
-              {validClubs.map(({ club, membership }) => (
-                <div
+            <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {validClubs.map(({ club, membership, tournamentCount, memberCount }) => (
+                <ClubCard
                   key={membership.id}
-                  className="flex items-center justify-between rounded-xl border border-border bg-card px-4 py-3"
-                >
-                  <div>
-                    <p className="text-sm font-semibold text-foreground">{club!.name}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {ROLE_LABELS[membership.role] ?? membership.role}
-                      {club!.status !== "approved" ? ` · ${club!.status}` : ""}
-                    </p>
-                  </div>
-                  <LinkButton href={`/c/${club!.slug}`} variant="outline" size="sm">
-                    Visit
-                  </LinkButton>
-                </div>
+                  club={club}
+                  tournamentCount={tournamentCount}
+                  memberCount={memberCount}
+                  badge={ROLE_LABELS[membership.role] ?? membership.role}
+                />
               ))}
             </div>
           )}

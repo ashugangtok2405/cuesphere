@@ -3,7 +3,8 @@ import Image from "next/image";
 import { redirect } from "next/navigation";
 import { Trophy, Radio, Users, ArrowRight } from "lucide-react";
 
-import { listClubs, listMembershipsForUser, getClubById } from "@/services/club-service";
+import { listClubs, listMembershipsForUser, listMembershipsForClub, getClubById } from "@/services/club-service";
+import { listClubTournaments } from "@/services/club-tournament-service";
 import { getSession } from "@/lib/auth/session";
 import { clubPath } from "@/lib/club-path";
 import { PlatformHeader } from "@/components/layout/platform-header";
@@ -11,6 +12,7 @@ import { PlatformFooter } from "@/components/layout/platform-footer";
 import { LinkButton } from "@/components/shared/link-button";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Card, CardContent } from "@/components/ui/card";
+import { ClubCard } from "@/features/platform/components/club-card";
 
 export const metadata: Metadata = { title: "CueSphere — The Complete Operating System for Snooker & Pool Clubs" };
 
@@ -25,7 +27,16 @@ export default async function LandingPage() {
     }
   }
 
-  const clubs = (await listClubs()).filter((club) => club.status === "approved");
+  const approvedClubs = (await listClubs()).filter((club) => club.status === "approved");
+  const clubs = await Promise.all(
+    approvedClubs.map(async (club) => {
+      const [tournaments, members] = await Promise.all([
+        listClubTournaments(club.id),
+        listMembershipsForClub(club.id),
+      ]);
+      return { club, tournamentCount: tournaments.length, memberCount: members.length };
+    })
+  );
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -130,21 +141,9 @@ export default async function LandingPage() {
               action={<LinkButton href="/clubs/new">Create Your Club</LinkButton>}
             />
           ) : (
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {clubs.map((club) => (
-                <LinkButton
-                  key={club.id}
-                  href={`/c/${club.slug}`}
-                  variant="outline"
-                  className="h-auto flex-col items-start gap-2 whitespace-normal p-5 text-left"
-                >
-                  <span className="font-heading text-base font-semibold text-foreground">
-                    {club.name}
-                  </span>
-                  {club.tagline ? (
-                    <span className="text-sm text-muted-foreground">{club.tagline}</span>
-                  ) : null}
-                </LinkButton>
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {clubs.map(({ club, tournamentCount, memberCount }) => (
+                <ClubCard key={club.id} club={club} tournamentCount={tournamentCount} memberCount={memberCount} />
               ))}
             </div>
           )}
