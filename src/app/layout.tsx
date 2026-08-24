@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/shared/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
 import { ViewerProvider } from "@/components/shared/viewer-provider";
+import { AppBadgeClearer } from "@/components/shared/app-badge-clearer";
 import { getViewer } from "@/lib/auth/get-viewer";
 
 const poppins = Poppins({
@@ -66,6 +67,7 @@ export default async function RootLayout({
         >
           <TooltipProvider delay={150}>
             <ViewerProvider viewer={viewer}>
+              <AppBadgeClearer />
               {children}
               <Toaster theme="dark" position="top-right" richColors />
             </ViewerProvider>
