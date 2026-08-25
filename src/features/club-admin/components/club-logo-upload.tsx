@@ -45,11 +45,11 @@ export function ClubLogoUpload({
     <div className="space-y-2">
       <Label>Club Logo</Label>
       <div className="flex items-center gap-4">
-        <div className="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border bg-card">
+        <div className="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border bg-card">
           {logoUrl ? (
-            <Image src={logoUrl} alt="Club logo" width={64} height={64} className="size-full object-contain p-1" />
+            <Image src={logoUrl} alt="Club logo" width={64} height={64} className="size-full object-cover" />
           ) : (
-            <span className="text-xs text-muted-foreground">No logo</span>
+            <span className="text-[10px] text-muted-foreground">No logo</span>
           )}
         </div>
         <div>
@@ -70,7 +70,10 @@ export function ClubLogoUpload({
             {isUploading ? <Loader2 className="size-4 animate-spin" /> : <Upload className="size-4" />}
             Upload Logo
           </Button>
-          <p className="mt-1 text-xs text-muted-foreground">PNG, JPG, WEBP or SVG. Max 2MB.</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            PNG, JPG, WEBP or SVG. Max 2MB. This is shown as a circle everywhere, so a square,
+            centered image works best.
+          </p>
         </div>
       </div>
     </div>
