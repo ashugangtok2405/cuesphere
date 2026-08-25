@@ -2,6 +2,7 @@ import Image from "next/image";
 import { MapPin, Trophy, Users } from "lucide-react";
 
 import { LinkButton } from "@/components/shared/link-button";
+import { cn } from "@/lib/utils";
 import type { Club } from "@/types/club";
 
 export function ClubCard({
@@ -45,9 +46,14 @@ export function ClubCard({
 
       <div className="flex flex-1 flex-col gap-3 px-5 pb-5">
         <div className="-mt-9 flex items-end gap-3">
-          <div className="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-full border-4 border-card bg-background shadow-lg ring-1 ring-border">
+          <div
+            className={cn(
+              "flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-full border-4 border-card shadow-lg ring-1 ring-border",
+              club.logoUrl ? "bg-white" : "bg-background"
+            )}
+          >
             {club.logoUrl ? (
-              <Image src={club.logoUrl} alt={club.name} width={64} height={64} className="size-full object-cover" />
+              <Image src={club.logoUrl} alt={club.name} width={64} height={64} className="size-full object-contain p-1.5" />
             ) : (
               <Trophy className="size-6 text-primary" strokeWidth={1.5} />
             )}

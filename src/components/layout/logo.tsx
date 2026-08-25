@@ -11,9 +11,14 @@ export function Logo({ className }: { className?: string }) {
 
   return (
     <Link href={basePath} className={cn("group flex items-center gap-2.5", className)}>
-      <span className="relative flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-primary/40 bg-primary/10 transition-colors group-hover:border-primary">
+      <span
+        className={cn(
+          "relative flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-full border border-primary/40 transition-colors group-hover:border-primary",
+          club.logoUrl ? "bg-white" : "bg-primary/10"
+        )}
+      >
         {club.logoUrl ? (
-          <Image src={club.logoUrl} alt={club.name} fill sizes="36px" className="object-cover" />
+          <Image src={club.logoUrl} alt={club.name} fill sizes="36px" className="object-contain p-0.5" />
         ) : (
           <svg viewBox="0 0 24 24" className="size-5 text-primary" fill="none">
             <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.4" />
