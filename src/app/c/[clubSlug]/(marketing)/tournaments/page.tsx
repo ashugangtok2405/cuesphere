@@ -12,6 +12,7 @@ import {
 import { getSession } from "@/lib/auth/session";
 import { getProfileByUserId } from "@/services/profile-service";
 import { getRegistrationForPlayer } from "@/services/registration-service";
+import { listFriendUserIds, countFriendsRegistered } from "@/services/friendship-service";
 import type { Club } from "@/types/club";
 
 export const metadata: Metadata = {
@@ -51,6 +52,7 @@ export default async function TournamentsPage({
 
   const session = await getSession();
   const profile = session ? await getProfileByUserId(session.id) : undefined;
+  const friendUserIds = session ? await listFriendUserIds(session.id) : [];
 
   // Base: the club being viewed (always public). Extended with every other
   // club the viewer is a member of, so a logged-in player can see all their
@@ -76,9 +78,10 @@ export default async function TournamentsPage({
 
   const withCounts = await Promise.all(
     tournamentsByClub.flat().map(async ({ tournament, club: tournamentClub }) => {
-      const [registeredCount, existingRegistration] = await Promise.all([
+      const [registeredCount, existingRegistration, friendsRegisteredCount] = await Promise.all([
         countRegisteredForClubTournament(tournament.id),
         profile ? getRegistrationForPlayer(tournament.id, profile.id) : Promise.resolve(undefined),
+        friendUserIds.length > 0 ? countFriendsRegistered(tournament.id, friendUserIds) : Promise.resolve(0),
       ]);
       return {
         ...tournament,
@@ -86,6 +89,7 @@ export default async function TournamentsPage({
         isRegistered: !!existingRegistration,
         clubSlug: tournamentClub.slug,
         clubName: tournamentClub.name,
+        friendsRegisteredCount,
       };
     })
   );

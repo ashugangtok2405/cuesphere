@@ -11,8 +11,8 @@ import { PlatformHeader } from "@/components/layout/platform-header";
 import { PlatformFooter } from "@/components/layout/platform-footer";
 import { LinkButton } from "@/components/shared/link-button";
 import { EmptyState } from "@/components/shared/empty-state";
-import { Card, CardContent } from "@/components/ui/card";
 import { ClubCard } from "@/features/platform/components/club-card";
+import { Reveal, RevealGroup, RevealItem } from "@/components/shared/reveal";
 
 export const metadata: Metadata = { title: "CueSphere — The Complete Operating System for Snooker & Pool Clubs" };
 
@@ -54,7 +54,7 @@ export default async function LandingPage() {
           />
           <div className="absolute inset-0 bg-background/50" />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
-          <div className="relative mx-auto max-w-5xl px-4 py-24 text-center sm:px-6 lg:px-8">
+          <Reveal className="relative mx-auto max-w-5xl px-4 py-24 text-center sm:px-6 lg:px-8">
             <span className="text-xs font-bold uppercase tracking-[0.22em] text-primary">
               For Snooker &amp; Pool Clubs
             </span>
@@ -74,64 +74,61 @@ export default async function LandingPage() {
                 Browse Clubs
               </LinkButton>
             </div>
-          </div>
+          </Reveal>
         </section>
 
         <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-          <div className="grid gap-6 sm:grid-cols-3">
-            <Card>
-              <CardContent className="flex flex-col items-start gap-3 pt-6">
-                <span className="flex size-11 items-center justify-center rounded-full bg-primary/10 text-primary">
-                  <Trophy className="size-5" />
-                </span>
-                <p className="font-heading text-base font-semibold text-foreground">
-                  Run Tournaments
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Registration, draws, fixtures and results — managed end to end for every event
-                  your club hosts.
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="flex flex-col items-start gap-3 pt-6">
-                <span className="flex size-11 items-center justify-center rounded-full bg-primary/10 text-primary">
-                  <Radio className="size-5" />
-                </span>
-                <p className="font-heading text-base font-semibold text-foreground">
-                  Live Scoring
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Frame-by-frame live match centres your players and fans can follow in real time.
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="flex flex-col items-start gap-3 pt-6">
-                <span className="flex size-11 items-center justify-center rounded-full bg-primary/10 text-primary">
-                  <Users className="size-5" />
-                </span>
-                <p className="font-heading text-base font-semibold text-foreground">
-                  One Account, Every Club
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Players sign up once and can join as many clubs as they like, keeping their
-                  history with each.
-                </p>
-              </CardContent>
-            </Card>
-          </div>
+          <RevealGroup className="grid gap-6 sm:grid-cols-3">
+            {[
+              {
+                icon: Trophy,
+                eyebrow: "01",
+                title: "Run Tournaments",
+                description:
+                  "Registration, draws, fixtures and results — managed end to end for every event your club hosts.",
+              },
+              {
+                icon: Radio,
+                eyebrow: "02",
+                title: "Live Scoring",
+                description:
+                  "Frame-by-frame live match centres your players and fans can follow in real time.",
+              },
+              {
+                icon: Users,
+                eyebrow: "03",
+                title: "One Account, Every Club",
+                description:
+                  "Players sign up once and can join as many clubs as they like, keeping their history with each.",
+              },
+            ].map(({ icon: Icon, eyebrow, title, description }) => (
+              <RevealItem
+                key={title}
+                className="card-hover group relative overflow-hidden rounded-2xl border border-border bg-card p-6"
+              >
+                <div className="absolute -right-6 -top-6 size-28 rounded-full bg-primary/10 blur-2xl transition-colors group-hover:bg-primary/20" />
+                <div className="relative flex items-start justify-between">
+                  <span className="flex size-12 items-center justify-center rounded-xl bg-gradient-to-br from-primary/25 to-primary/5 text-primary shadow-[0_0_20px_rgba(212,175,55,0.15)]">
+                    <Icon className="size-6" strokeWidth={1.6} />
+                  </span>
+                  <span className="font-tabular text-2xl font-bold text-border">{eyebrow}</span>
+                </div>
+                <p className="relative mt-5 font-heading text-lg font-bold text-foreground">{title}</p>
+                <p className="relative mt-2 text-sm leading-relaxed text-muted-foreground">{description}</p>
+              </RevealItem>
+            ))}
+          </RevealGroup>
         </section>
 
         <section id="clubs" className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-          <div className="mb-8 flex items-end justify-between gap-4">
+          <Reveal className="mb-8 flex items-end justify-between gap-4">
             <div>
               <h2 className="font-heading text-2xl font-bold text-foreground">Clubs on CueSphere</h2>
               <p className="mt-1 text-sm text-muted-foreground">
                 Find your club, or explore what other clubs are running.
               </p>
             </div>
-          </div>
+          </Reveal>
 
           {clubs.length === 0 ? (
             <EmptyState
@@ -141,11 +138,13 @@ export default async function LandingPage() {
               action={<LinkButton href="/clubs/new">Create Your Club</LinkButton>}
             />
           ) : (
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <RevealGroup className="grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
               {clubs.map(({ club, tournamentCount, memberCount }) => (
-                <ClubCard key={club.id} club={club} tournamentCount={tournamentCount} memberCount={memberCount} />
+                <RevealItem key={club.id}>
+                  <ClubCard club={club} tournamentCount={tournamentCount} memberCount={memberCount} />
+                </RevealItem>
               ))}
-            </div>
+            </RevealGroup>
           )}
         </section>
       </main>

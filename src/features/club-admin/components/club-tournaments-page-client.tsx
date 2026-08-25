@@ -40,10 +40,12 @@ export function ClubTournamentsPageClient({
   tournaments,
   clubs,
   initialStatus = "upcoming",
+  allClubsLabel = "All My Clubs",
 }: {
   tournaments: ClubTournamentCardData[];
   clubs: { slug: string; name: string }[];
   initialStatus?: ListingStatusFilter;
+  allClubsLabel?: string;
 }) {
   const defaultFilters: TournamentFilters = {
     status: initialStatus,
@@ -62,7 +64,7 @@ export function ClubTournamentsPageClient({
     return tournaments.filter((t) => {
       if (clubFilter !== "all" && t.clubSlug !== clubFilter) return false;
       if (filters.status === "registration-open") {
-        if (!t.registrationOpen) return false;
+        if (!t.registrationOpen || t.status === "completed") return false;
       } else if (t.status !== filters.status) {
         return false;
       }
@@ -116,7 +118,7 @@ export function ClubTournamentsPageClient({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All My Clubs</SelectItem>
+              <SelectItem value="all">{allClubsLabel}</SelectItem>
               {clubs.map((c) => (
                 <SelectItem key={c.slug} value={c.slug}>
                   {c.name}
@@ -148,7 +150,10 @@ export function ClubTournamentsPageClient({
 
         <div className="space-y-6">
           {paginated.length > 0 ? (
-            <RevealGroup className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+            <RevealGroup
+              key={`${clubFilter}:${filters.status}:${filters.format}:${filters.entryFee}:${search}:${page}`}
+              className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3"
+            >
               {paginated.map((tournament) => (
                 <RevealItem key={tournament.id}>
                   <ClubTournamentCard

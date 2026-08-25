@@ -5,11 +5,12 @@ import { Building2 } from "lucide-react";
 import { getSession } from "@/lib/auth/session";
 import { getClubById, listMembershipsForUser, listMembershipsForClub } from "@/services/club-service";
 import { listClubTournaments } from "@/services/club-tournament-service";
+import { getProfileByUserId } from "@/services/profile-service";
 import { PlatformHeader } from "@/components/layout/platform-header";
 import { PlatformFooter } from "@/components/layout/platform-footer";
 import { EmptyState } from "@/components/shared/empty-state";
 import { LinkButton } from "@/components/shared/link-button";
-import { ClubCard } from "@/features/platform/components/club-card";
+import { MyClubCard } from "@/features/platform/components/my-club-card";
 
 export const metadata: Metadata = { title: "My Clubs" };
 
@@ -27,6 +28,7 @@ export default async function MyClubsPage() {
     redirect("/login?redirect=%2Fmy-clubs");
   }
 
+  const profile = await getProfileByUserId(session.id);
   const memberships = await listMembershipsForUser(session.id);
   const entries = await Promise.all(
     memberships.map(async (membership) => {
@@ -65,14 +67,15 @@ export default async function MyClubsPage() {
               action={<LinkButton href="/clubs">Browse Clubs</LinkButton>}
             />
           ) : (
-            <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
               {validClubs.map(({ club, membership, tournamentCount, memberCount }) => (
-                <ClubCard
+                <MyClubCard
                   key={membership.id}
                   club={club}
                   tournamentCount={tournamentCount}
                   memberCount={memberCount}
                   badge={ROLE_LABELS[membership.role] ?? membership.role}
+                  isPrimary={profile?.primaryClubId === club.id}
                 />
               ))}
             </div>

@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { LogOut, Menu, UserCog } from "lucide-react";
+import { LogOut, Menu, UserCog, Users } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { LinkButton } from "@/components/shared/link-button";
@@ -51,6 +51,9 @@ export function PlatformHeader() {
           <LinkButton href="/clubs" variant="ghost" size="sm">
             Browse Clubs
           </LinkButton>
+          <LinkButton href="/tournaments" variant="ghost" size="sm">
+            Tournaments
+          </LinkButton>
           {!viewer.ownsClub ? (
             <LinkButton href="/clubs/new" variant="outline" size="sm">
               Create Your Club
@@ -58,8 +61,14 @@ export function PlatformHeader() {
           ) : null}
           {viewer.user ? (
             <>
+              <LinkButton href="/players" variant="ghost" size="sm">
+                Players
+              </LinkButton>
               <LinkButton href="/my-clubs" variant="ghost" size="sm">
                 My Clubs
+              </LinkButton>
+              <LinkButton href="/friends" variant="ghost" size="icon" aria-label="My Friends">
+                <Users className="size-4" />
               </LinkButton>
               <LinkButton href="/account/profile" variant="ghost" size="icon" aria-label="My Profile">
                 <UserCog className="size-4" />
@@ -100,6 +109,11 @@ export function PlatformHeader() {
                   Browse Clubs
                 </span>
               </SheetClose>
+              <SheetClose nativeButton={false} render={<Link href="/tournaments" />}>
+                <span className="block rounded-lg px-3 py-2.5 text-sm font-medium text-foreground hover:bg-white/5">
+                  Tournaments
+                </span>
+              </SheetClose>
               {!viewer.ownsClub ? (
                 <SheetClose nativeButton={false} render={<Link href="/clubs/new" />}>
                   <span className="block rounded-lg px-3 py-2.5 text-sm font-medium text-foreground hover:bg-white/5">
@@ -109,9 +123,19 @@ export function PlatformHeader() {
               ) : null}
               {viewer.user ? (
                 <>
+                  <SheetClose nativeButton={false} render={<Link href="/players" />}>
+                    <span className="block rounded-lg px-3 py-2.5 text-sm font-medium text-foreground hover:bg-white/5">
+                      Players
+                    </span>
+                  </SheetClose>
                   <SheetClose nativeButton={false} render={<Link href="/my-clubs" />}>
                     <span className="block rounded-lg px-3 py-2.5 text-sm font-medium text-foreground hover:bg-white/5">
                       My Clubs
+                    </span>
+                  </SheetClose>
+                  <SheetClose nativeButton={false} render={<Link href="/friends" />}>
+                    <span className="block rounded-lg px-3 py-2.5 text-sm font-medium text-foreground hover:bg-white/5">
+                      My Friends
                     </span>
                   </SheetClose>
                   <SheetClose nativeButton={false} render={<Link href="/account/profile" />}>

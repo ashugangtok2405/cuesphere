@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { Trophy } from "lucide-react";
 
 import { PlatformHeader } from "@/components/layout/platform-header";
@@ -20,13 +21,23 @@ export default async function PlatformRegisterPage({
       <PlatformHeader />
       <div className="grid flex-1 lg:grid-cols-2">
         <div className="relative hidden overflow-hidden felt-texture lg:block">
+          <Image
+            src="/images/landing-hero.jpg"
+            alt=""
+            fill
+            sizes="50vw"
+            className="object-cover"
+          />
           <div className="absolute inset-0 bg-grid-fade opacity-30" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-background/20" />
+          <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-transparent to-transparent" />
+          <div className="absolute -left-24 top-1/3 size-96 rounded-full bg-primary/30 blur-[120px]" />
           <div className="relative flex h-full flex-col items-start justify-center px-16">
             <Trophy className="size-12 text-primary drop-shadow-[0_0_24px_rgba(212,175,55,0.5)]" />
-            <h2 className="mt-6 max-w-sm text-3xl font-bold text-foreground">
+            <h2 className="mt-6 max-w-sm text-3xl font-bold text-foreground drop-shadow-[0_2px_12px_rgba(0,0,0,0.6)]">
               Join the table.
             </h2>
-            <p className="mt-3 max-w-sm text-sm text-white/70">
+            <p className="mt-3 max-w-sm text-sm text-white/80">
               Create your CueSphere account to join clubs as a player, or set up a club of your
               own.
             </p>

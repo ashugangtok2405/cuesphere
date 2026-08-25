@@ -10,6 +10,7 @@ export interface PlayerProfile {
   emergencyContact: string;
   profilePhotoUrl: string;
   preferredCue: string;
+  primaryClubId: string | null;
   createdAt: string;
 }
 
@@ -50,5 +51,6 @@ export const PROFILE_FIELD_LABELS: Record<keyof PlayerProfile, string> = {
   emergencyContact: "Emergency Contact",
   profilePhotoUrl: "Profile Photo",
   preferredCue: "Preferred Cue",
+  primaryClubId: "Primary Club",
   createdAt: "Created At",
 };

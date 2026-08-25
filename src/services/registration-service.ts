@@ -14,6 +14,7 @@ interface RegistrationRow {
   preferred_cue: string;
   notes: string;
   agreed_to_rules: boolean;
+  payment_status: TournamentRegistration["paymentStatus"];
   created_at: string;
 }
 
@@ -29,6 +30,7 @@ function fromRow(row: RegistrationRow): TournamentRegistration {
     preferredCue: row.preferred_cue,
     notes: row.notes,
     agreedToRules: row.agreed_to_rules,
+    paymentStatus: row.payment_status,
     createdAt: row.created_at,
   };
 }
@@ -151,4 +153,16 @@ export async function createRegistration(input: {
   }
 
   return fromRow(data as RegistrationRow);
+}
+
+export async function updateRegistrationPaymentStatus(
+  registrationId: string,
+  paymentStatus: TournamentRegistration["paymentStatus"]
+): Promise<{ error?: string }> {
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase
+    .from("tournament_registrations")
+    .update({ payment_status: paymentStatus })
+    .eq("id", registrationId);
+  return { error: error?.message };
 }

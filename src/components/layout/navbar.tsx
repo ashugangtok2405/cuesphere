@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bell, Menu, Search } from "lucide-react";
+import { Bell, Compass, Menu, Search, Trophy } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { NAV_LINKS } from "@/lib/constants";
@@ -23,10 +23,20 @@ import { useViewer } from "@/components/shared/viewer-provider";
 import { useClub } from "@/components/shared/club-provider";
 import { useClubViewer } from "@/components/shared/club-viewer-provider";
 
-function NavLink({ href, label, basePath }: { href: string; label: string; basePath: string }) {
+function NavLink({
+  href,
+  label,
+  basePath,
+  homeHref,
+}: {
+  href: string;
+  label: string;
+  basePath: string;
+  homeHref: string;
+}) {
   const pathname = usePathname();
-  const fullHref = `${basePath}${href === "/" ? "" : href}`;
-  const isActive = href === "/" ? pathname === basePath : pathname.startsWith(fullHref);
+  const fullHref = href === "/" ? homeHref : `${basePath}${href}`;
+  const isActive = href === "/" ? pathname === homeHref : pathname.startsWith(fullHref);
 
   return (
     <Link
@@ -48,6 +58,8 @@ export function Navbar() {
   const viewer = useViewer();
   const { basePath } = useClub();
   const clubViewer = useClubViewer();
+  const isOwner = clubViewer.membership?.role === "club_admin";
+  const homeHref = isOwner ? basePath : "/";
 
   return (
     <header className="sticky top-0 z-50 glass">
@@ -56,8 +68,22 @@ export function Navbar() {
 
         <nav className="hidden items-center gap-0.5 xl:flex">
           {NAV_LINKS.map((link) => (
-            <NavLink key={link.href} href={link.href} label={link.label} basePath={basePath} />
+            <NavLink key={link.href} href={link.href} label={link.label} basePath={basePath} homeHref={homeHref} />
           ))}
+          <Link
+            href="/clubs"
+            className="ml-1 flex items-center gap-1.5 rounded-full border border-border px-3.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+          >
+            <Compass className="size-3.5" />
+            Browse Clubs
+          </Link>
+          <Link
+            href="/tournaments"
+            className="flex items-center gap-1.5 rounded-full border border-border px-3.5 py-2 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+          >
+            <Trophy className="size-3.5" />
+            All Tournaments
+          </Link>
         </nav>
 
         <div className="flex items-center gap-2">
@@ -102,13 +128,25 @@ export function Navbar() {
                   <SheetClose
                     key={link.href}
                     nativeButton={false}
-                    render={<Link href={`${basePath}${link.href === "/" ? "" : link.href}`} />}
+                    render={<Link href={link.href === "/" ? homeHref : `${basePath}${link.href}`} />}
                   >
                     <span className="block rounded-lg px-3 py-2.5 text-sm font-medium text-foreground hover:bg-white/5">
                       {link.label}
                     </span>
                   </SheetClose>
                 ))}
+                <SheetClose nativeButton={false} render={<Link href="/clubs" />}>
+                  <span className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-foreground hover:bg-white/5">
+                    <Compass className="size-4" />
+                    Browse Clubs
+                  </span>
+                </SheetClose>
+                <SheetClose nativeButton={false} render={<Link href="/tournaments" />}>
+                  <span className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-foreground hover:bg-white/5">
+                    <Trophy className="size-4" />
+                    All Tournaments
+                  </span>
+                </SheetClose>
               </nav>
               <div className="mt-4 flex flex-col gap-2 border-t border-border px-4 pt-4">
                 {viewer.user ? (

@@ -12,7 +12,12 @@ import {
   deleteClubTournament,
   countRegisteredForClubTournament,
 } from "@/services/club-tournament-service";
-import { createRegistration, getRegistrationForPlayer } from "@/services/registration-service";
+import {
+  createRegistration,
+  getRegistrationForPlayer,
+  getRegistrationById,
+  updateRegistrationPaymentStatus,
+} from "@/services/registration-service";
 import {
   saveFixturesForClubTournament,
   getMatchById,
@@ -22,7 +27,8 @@ import { getRegisteredPlayerIds } from "@/services/registration-service";
 import type { MatchStatus } from "@/types/match";
 import { getProfileByUserId } from "@/services/profile-service";
 import { getProfileCompletion } from "@/types/player-profile";
-import { notifyNewTournament } from "@/services/push-notification-service";
+import { notifyNewTournament, notifyFriendRegistered } from "@/services/push-notification-service";
+import { listFriendUserIds } from "@/services/friendship-service";
 import type { ClubTournament, PrizeBreakdownItem } from "@/types/club-tournament";
 
 /** Excludes scorekeeper-only accounts — used for anything beyond
@@ -230,5 +236,35 @@ export async function registerForClubTournamentAction(clubSlug: string, tourname
     status: "confirmed",
   });
 
+  const friendUserIds = await listFriendUserIds(session.id);
+  if (friendUserIds.length > 0) {
+    await notifyFriendRegistered(
+      friendUserIds,
+      profile.fullName || "A friend",
+      club.slug,
+      tournament.name,
+      tournament.slug
+    ).catch(() => {});
+  }
+
   return { success: true as const, registrationId: registration.id };
+}
+
+export async function updateRegistrationPaymentStatusAction(
+  clubSlug: string,
+  registrationId: string,
+  paymentStatus: "paid" | "pending"
+) {
+  const check = await requireClubManager(clubSlug);
+  if (!check.ok) return { success: false as const, error: check.error };
+
+  const registration = await getRegistrationById(registrationId);
+  if (!registration || registration.clubId !== check.club.id) {
+    return { success: false as const, error: "Registration not found." };
+  }
+
+  const { error } = await updateRegistrationPaymentStatus(registrationId, paymentStatus);
+  if (error) return { success: false as const, error };
+
+  return { success: true as const };
 }

@@ -15,6 +15,7 @@ interface ProfileRow {
   emergency_contact: string;
   profile_photo_url: string;
   preferred_cue: string;
+  primary_club_id: string | null;
   created_at: string;
 }
 
@@ -31,6 +32,7 @@ function fromRow(row: ProfileRow): PlayerProfile {
     emergencyContact: row.emergency_contact,
     profilePhotoUrl: row.profile_photo_url,
     preferredCue: row.preferred_cue,
+    primaryClubId: row.primary_club_id,
     createdAt: row.created_at,
   };
 }
@@ -84,6 +86,15 @@ export async function ensureProfileForUser(userId: string, email: string): Promi
   await admin.from("player_statistics").insert({ player_id: data.id });
 
   return fromRow(data as ProfileRow);
+}
+
+export async function setPrimaryClub(userId: string, clubId: string | null): Promise<{ error?: string }> {
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase
+    .from("player_profiles")
+    .update({ primary_club_id: clubId })
+    .eq("user_id", userId);
+  return { error: error?.message };
 }
 
 export async function updateProfile(

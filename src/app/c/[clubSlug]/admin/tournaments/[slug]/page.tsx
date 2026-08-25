@@ -9,6 +9,7 @@ import { getRegistrationsForTournament } from "@/services/registration-service";
 import { getMatchesForTournament } from "@/services/match-service";
 import { getProfileById } from "@/services/profile-service";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/shared/empty-state";
 import { AvatarInitials } from "@/components/shared/avatar-initials";
 import { EditTournamentForm } from "@/features/club-admin/components/edit-tournament-form";
@@ -96,7 +97,18 @@ export default async function ManageTournamentPage({
                         />
                         {profile?.fullName || "Unknown Player"}
                       </span>
-                      <span className="text-xs text-muted-foreground">{registration.registrationNumber}</span>
+                      <span className="flex items-center gap-2">
+                        <Badge
+                          className={
+                            registration.paymentStatus === "paid"
+                              ? "border-success/40 bg-success/15 text-success"
+                              : "border-destructive/40 bg-destructive/15 text-destructive"
+                          }
+                        >
+                          {registration.paymentStatus === "paid" ? "Paid" : "Pending"}
+                        </Badge>
+                        <span className="text-xs text-muted-foreground">{registration.registrationNumber}</span>
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -148,11 +160,13 @@ export default async function ManageTournamentPage({
                 <FixtureBuilder
                   clubSlug={clubSlug}
                   tournamentId={tournament.id}
-                  players={players.map(({ registration, profile }) => ({
-                    id: registration.playerId,
-                    name: profile?.fullName || "Unknown Player",
-                    photoUrl: profile?.profilePhotoUrl,
-                  }))}
+                  players={players
+                    .filter(({ registration }) => registration.paymentStatus === "paid")
+                    .map(({ registration, profile }) => ({
+                      id: registration.playerId,
+                      name: profile?.fullName || "Unknown Player",
+                      photoUrl: profile?.profilePhotoUrl,
+                    }))}
                   matches={matches}
                 />
               )}

@@ -1,8 +1,10 @@
 "use server";
 
 import { z } from "zod";
+import { revalidatePath } from "next/cache";
 import { getSession } from "@/lib/auth/session";
-import { updateProfile } from "@/services/profile-service";
+import { updateProfile, setPrimaryClub } from "@/services/profile-service";
+import { getMembership } from "@/services/club-service";
 
 const profileSchema = z.object({
   fullName: z.string().min(2, "Enter your full name."),
@@ -31,4 +33,26 @@ export async function updateProfileAction(input: z.infer<typeof profileSchema>) 
   });
 
   return { success: true as const, profile };
+}
+
+export async function setPrimaryClubAction(clubId: string | null) {
+  const session = await getSession();
+  if (!session) {
+    return { success: false as const, error: "You must be logged in." };
+  }
+
+  if (clubId) {
+    const membership = await getMembership(clubId, session.id);
+    if (!membership) {
+      return { success: false as const, error: "You're not a member of that club." };
+    }
+  }
+
+  const { error } = await setPrimaryClub(session.id, clubId);
+  if (error) return { success: false as const, error };
+
+  revalidatePath("/my-clubs");
+  revalidatePath("/players");
+  revalidatePath("/friends");
+  return { success: true as const };
 }

@@ -38,6 +38,7 @@ export function ClubTournamentTabs({
   matches,
   playerPhotos,
   overrideResults,
+  canManagePayments = false,
 }: {
   clubSlug: string;
   tournament: ClubTournament;
@@ -47,6 +48,7 @@ export function ClubTournamentTabs({
   matches: DrawMatch[];
   playerPhotos: Record<string, string>;
   overrideResults?: TournamentResults | null;
+  canManagePayments?: boolean;
 }) {
   const [active, setActive] = useState<TabValue>("overview");
   const liveMatch = matches.find((m) => m.status === "live") ?? null;
@@ -74,7 +76,9 @@ export function ClubTournamentTabs({
             overrideResults={overrideResults}
           />
         )}
-        {active === "players" && <ClubPlayersTab clubSlug={clubSlug} players={players} />}
+        {active === "players" && (
+          <ClubPlayersTab clubSlug={clubSlug} players={players} canManagePayments={canManagePayments} />
+        )}
         {active === "fixtures" && <ClubFixturesTab clubSlug={clubSlug} matches={matches} playerPhotos={playerPhotos} />}
         {active === "live" && <ClubLiveTab matches={matches} playerPhotos={playerPhotos} />}
         {active === "results" && <ClubResultsTab clubSlug={clubSlug} matches={matches} playerPhotos={playerPhotos} />}

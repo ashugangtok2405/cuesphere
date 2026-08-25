@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { LayoutDashboard, Trophy, Settings, Radio, Image as ImageIcon } from "lucide-react";
+import { LayoutDashboard, Trophy, Settings, Radio, Image as ImageIcon, Home } from "lucide-react";
 
 import { getClubViewer } from "@/lib/auth/get-club-viewer";
 import { getSession } from "@/lib/auth/session";
@@ -46,9 +46,13 @@ export default async function ClubAdminLayout({
   return (
     <div className="mx-auto flex min-h-screen max-w-7xl gap-8 px-4 py-8 sm:px-6 lg:px-8">
       <aside className="w-56 shrink-0">
-        <p className="mb-4 px-2 text-xs font-bold uppercase tracking-[0.2em] text-primary">
+        <Link
+          href={clubPath(clubSlug)}
+          className="mb-4 flex items-center gap-2 px-2 text-xs font-bold uppercase tracking-[0.2em] text-primary hover:text-primary/80"
+        >
+          <Home className="size-3.5" />
           {clubViewer.club.name}
-        </p>
+        </Link>
         <nav className="flex flex-col gap-1">
           {navItems.map((item) => (
             <Link

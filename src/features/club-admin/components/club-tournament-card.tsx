@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Calendar, CheckCircle2, MapPin, Trophy, Users } from "lucide-react";
+import { Calendar, CheckCircle2, MapPin, Trophy, Users, UserRound } from "lucide-react";
 
 import { LinkButton } from "@/components/shared/link-button";
 import { StatusBadge } from "@/components/shared/status-badge";
@@ -14,6 +14,7 @@ export type ClubTournamentCardData = ClubTournament & {
   isRegistered: boolean;
   clubSlug: string;
   clubName: string;
+  friendsRegisteredCount?: number;
 };
 
 function MetaRow({ icon: Icon, children }: { icon: React.ElementType; children: React.ReactNode }) {
@@ -91,6 +92,15 @@ export function ClubTournamentCard({
         {tournament.isRegistered ? (
           <div className="flex items-center gap-1.5 rounded-lg border border-success/40 bg-success/10 px-2.5 py-1.5 text-xs font-medium text-success">
             <CheckCircle2 className="size-3.5" /> You&apos;re Registered
+          </div>
+        ) : null}
+
+        {tournament.friendsRegisteredCount ? (
+          <div className="flex items-center gap-1.5 rounded-lg border border-primary/30 bg-primary/10 px-2.5 py-1.5 text-xs font-medium text-primary">
+            <UserRound className="size-3.5" />
+            {tournament.friendsRegisteredCount === 1
+              ? "1 friend is playing"
+              : `${tournament.friendsRegisteredCount} friends are playing`}
           </div>
         ) : null}
 

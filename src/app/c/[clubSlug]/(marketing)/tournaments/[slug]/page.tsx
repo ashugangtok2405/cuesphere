@@ -5,7 +5,8 @@ import { TournamentDetailHero } from "@/features/tournament-detail/components/to
 import { TournamentTabs } from "@/features/tournament-detail/components/tournament-tabs";
 import { getTournamentDetail } from "@/lib/mock/tournament-detail";
 import { clubPath } from "@/lib/club-path";
-import { getClubBySlug } from "@/services/club-service";
+import { getClubBySlug, getMembership } from "@/services/club-service";
+import { isStaffRole, isScorekeeperOnly } from "@/types/club";
 import {
   getClubTournamentBySlug,
   countRegisteredForClubTournament,
@@ -71,6 +72,8 @@ export default async function TournamentDetailPage({
 
   const session = await getSession();
   const profile = session ? await getProfileByUserId(session.id) : undefined;
+  const membership = session ? await getMembership(club.id, session.id) : undefined;
+  const canManagePayments = isStaffRole(membership?.role) && !isScorekeeperOnly(membership?.role);
   const [existingRegistration, registeredCount, registrations, matches] = await Promise.all([
     profile ? getRegistrationForPlayer(tournament.id, profile.id) : Promise.resolve(undefined),
     countRegisteredForClubTournament(tournament.id),
@@ -138,6 +141,7 @@ export default async function TournamentDetailPage({
         matches={matches}
         playerPhotos={playerPhotos}
         overrideResults={overrideResults}
+        canManagePayments={canManagePayments}
       />
     </div>
   );

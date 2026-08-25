@@ -44,6 +44,21 @@ export async function listAllPushSubscriptions(): Promise<PushSubscriptionRecord
   );
 }
 
+export async function listPushSubscriptionsForUsers(userIds: string[]): Promise<PushSubscriptionRecord[]> {
+  if (userIds.length === 0) return [];
+  const admin = createSupabaseAdminClient();
+  const { data } = await admin.from("push_subscriptions").select("*").in("user_id", userIds);
+  return (
+    data?.map((row) => ({
+      id: row.id,
+      userId: row.user_id,
+      endpoint: row.endpoint,
+      p256dh: row.p256dh,
+      auth: row.auth,
+    })) ?? []
+  );
+}
+
 export async function isUserSubscribed(userId: string): Promise<boolean> {
   const admin = createSupabaseAdminClient();
   const { data } = await admin

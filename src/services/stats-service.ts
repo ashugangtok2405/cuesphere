@@ -48,6 +48,13 @@ export async function getStatsForPlayer(
   return data ? fromRow(data as StatsRow) : undefined;
 }
 
+/** Every per-club stats row for this player, for a platform-wide public profile. */
+export async function getStatsForPlayerAllClubs(playerId: string): Promise<PlayerStatistics[]> {
+  const admin = createSupabaseAdminClient();
+  const { data } = await admin.from("player_statistics").select("*").eq("player_id", playerId);
+  return (data as StatsRow[] | null)?.map(fromRow) ?? [];
+}
+
 export async function getAchievementsForPlayer(playerId: string, clubId: string): Promise<Achievement[]> {
   const admin = createSupabaseAdminClient();
   const { data } = await admin

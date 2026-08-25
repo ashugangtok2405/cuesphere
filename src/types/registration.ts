@@ -25,5 +25,6 @@ export interface TournamentRegistration {
   preferredCue: string;
   notes: string;
   agreedToRules: boolean;
+  paymentStatus: PaymentStatus;
   createdAt: string;
 }

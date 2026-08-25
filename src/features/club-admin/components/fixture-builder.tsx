@@ -324,6 +324,7 @@ export function FixtureBuilder({
         <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           Available Players ({pool.length})
         </p>
+        <p className="mb-2 text-xs text-muted-foreground">Only players marked as paid are available for fixtures.</p>
         <div
           onDragOver={(e) => e.preventDefault()}
           onDrop={(e) => {

@@ -1,7 +1,9 @@
 import webpush from "web-push";
 import {
   listAllPushSubscriptions,
+  listPushSubscriptionsForUsers,
   deletePushSubscriptionByEndpoint,
+  type PushSubscriptionRecord,
 } from "@/services/push-subscription-service";
 
 let configured = false;
@@ -27,10 +29,16 @@ interface NotificationPayload {
  * nobody misses one. Expired/invalid subscriptions are cleaned up as they're
  * discovered rather than left to accumulate. */
 export async function broadcastPushNotification(payload: NotificationPayload): Promise<void> {
+  const subscriptions = await listAllPushSubscriptions();
+  await sendToSubscriptions(subscriptions, payload);
+}
+
+async function sendToSubscriptions(
+  subscriptions: PushSubscriptionRecord[],
+  payload: NotificationPayload
+): Promise<void> {
   ensureConfigured();
   if (!process.env.VAPID_PRIVATE_KEY || !process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY) return;
-
-  const subscriptions = await listAllPushSubscriptions();
   if (subscriptions.length === 0) return;
 
   await Promise.allSettled(
@@ -57,6 +65,23 @@ export async function notifyNewTournament(clubName: string, clubSlug: string, to
   await broadcastPushNotification({
     title: `New tournament: ${tournamentName}`,
     body: `${clubName} just announced "${tournamentName}". Tap to see details and register.`,
+    url: `/c/${clubSlug}/tournaments/${tournamentSlug}`,
+  });
+}
+
+/** Notifies a player's friends when they register for a tournament, so no one
+ * misses that someone they know is playing. */
+export async function notifyFriendRegistered(
+  friendUserIds: string[],
+  playerName: string,
+  clubSlug: string,
+  tournamentName: string,
+  tournamentSlug: string
+) {
+  const subscriptions = await listPushSubscriptionsForUsers(friendUserIds);
+  await sendToSubscriptions(subscriptions, {
+    title: `${playerName} is playing ${tournamentName}`,
+    body: `Your friend ${playerName} just registered for "${tournamentName}". Tap to see who else is in.`,
     url: `/c/${clubSlug}/tournaments/${tournamentSlug}`,
   });
 }
