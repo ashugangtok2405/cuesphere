@@ -47,7 +47,7 @@ export function ClubCard({
         <div className="-mt-9 flex items-end gap-3">
           <div className="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-full border-4 border-card bg-background shadow-lg ring-1 ring-border">
             {club.logoUrl ? (
-              <Image src={club.logoUrl} alt={club.name} width={64} height={64} className="size-full object-cover" />
+              <Image src={club.logoUrl} alt={club.name} width={64} height={64} className="size-full object-contain p-1" />
             ) : (
               <Trophy className="size-6 text-primary" strokeWidth={1.5} />
             )}

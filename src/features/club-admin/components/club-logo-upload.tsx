@@ -47,7 +47,7 @@ export function ClubLogoUpload({
       <div className="flex items-center gap-4">
         <div className="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-border bg-card">
           {logoUrl ? (
-            <Image src={logoUrl} alt="Club logo" width={64} height={64} className="size-full object-cover" />
+            <Image src={logoUrl} alt="Club logo" width={64} height={64} className="size-full object-contain p-1" />
           ) : (
             <span className="text-xs text-muted-foreground">No logo</span>
           )}
