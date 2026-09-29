@@ -57,6 +57,7 @@ async function toTableMatch(match: DrawMatch): Promise<TableMatch> {
     redsRemaining: match.redsRemaining,
     pointsRemaining: match.redsRemaining > 0 ? match.redsRemaining * 8 + 27 + (onColour ? 7 : 0) : null,
     onStrike: match.currentPlayer,
+    inFrameBreak: match.inFrameBreak,
     frames: match.frameScores,
     highestBreak: match.highestBreak,
     highestBreakBy:
@@ -109,6 +110,7 @@ export async function getTableBoard(club: Club, table: number, followId?: string
       sponsorLogos: settings.sponsorLogos,
       accent: settings.accent,
       show: settings.show,
+      ads: settings.ads,
     },
     table,
     live: liveView,

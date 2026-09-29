@@ -99,6 +99,7 @@ export async function updateLiveProgressAction(
     highestBreakSoFar?: number;
     highestBreakSoFarPlayerId?: string | null;
     currentPlayer?: 1 | 2;
+    inFrameBreak?: boolean;
   }
 ) {
   const check = await requireMatchStaff(matchId);

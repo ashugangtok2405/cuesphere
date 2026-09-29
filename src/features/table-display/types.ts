@@ -1,6 +1,6 @@
 import type { BallColor } from "@/features/live-match/components/ball-icon";
 import type { FrameScore, MatchStatus } from "@/types/match";
-import type { OverlayToggles } from "@/types/stream";
+import type { AdSettings, OverlayToggles } from "@/types/stream";
 
 export interface TableSide {
   name: string;
@@ -29,6 +29,8 @@ export interface TableMatch {
   /** Null once the reds are gone (which colours remain isn't stored). */
   pointsRemaining: number | null;
   onStrike: 1 | 2 | null;
+  /** The referee has ended a frame and not started the next one yet. */
+  inFrameBreak: boolean;
   frames: FrameScore[];
   highestBreak: number;
   highestBreakBy: 1 | 2 | null;
@@ -46,6 +48,7 @@ export interface TableStream {
   sponsorLogos: string[];
   accent: string;
   show: OverlayToggles;
+  ads: AdSettings;
 }
 
 export interface TableBoard {

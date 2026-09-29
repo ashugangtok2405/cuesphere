@@ -2,8 +2,10 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
+import { Play } from "lucide-react";
 import { toast } from "sonner";
 
+import { Button } from "@/components/ui/button";
 import { BallTracker } from "@/features/club-admin/components/scoring/ball-tracker";
 import { ScoreButtons } from "@/features/club-admin/components/scoring/score-buttons";
 import { MatchActions } from "@/features/club-admin/components/scoring/match-actions";
@@ -36,6 +38,8 @@ interface LiveState {
   frameHistory: FrameEntry[];
   matchHighestBreak: number;
   matchHighestBreakPlayer: 1 | 2 | null;
+  /** Between End Frame and the next frame starting — table screens play ads. */
+  frameBreak: boolean;
 }
 
 interface Board {
@@ -55,6 +59,7 @@ function initialState(): LiveState {
     frameHistory: [],
     matchHighestBreak: 0,
     matchHighestBreakPlayer: null,
+    frameBreak: false,
   };
 }
 
@@ -65,6 +70,7 @@ function stateFromMatch(match: DrawMatch): LiveState {
   return {
     ...initialState(),
     currentPlayer: match.currentPlayer ?? 1,
+    frameBreak: match.inFrameBreak ?? false,
     currentBreak: match.currentBreak ?? 0,
     breakBalls: match.currentBreakBalls ?? [],
     redsRemaining: match.redsRemaining ?? TOTAL_REDS,
@@ -203,13 +209,19 @@ export function LiveScoringPanel({
   /** Always derives the next state from the freshest previous state, so
    * rapid repeated clicks (e.g. potting several reds in a row) never lose
    * an update to a stale closure. */
-  function commit(updater: (prev: LiveState) => LiveState) {
+  function commit(updater: (prev: LiveState) => LiveState, keepFrameBreak = false) {
     setFoulReds(null);
     setBoard((b) => {
       const next = updater(b.current);
       if (next === b.current) return b;
-      return { current: next, history: [...b.history, b.current] };
+      // Recording any shot means the next frame has started, so the break (and its ads) ends.
+      const current = keepFrameBreak || !next.frameBreak ? next : { ...next, frameBreak: false };
+      return { current, history: [...b.history, b.current] };
     });
+  }
+
+  function startFrame() {
+    commit((prev) => (prev.frameBreak ? { ...prev, frameBreak: false } : prev));
   }
 
   function undo() {
@@ -303,7 +315,11 @@ export function LiveScoringPanel({
   }
 
   function setStriker(player: 1 | 2) {
-    commit((prev) => (prev.currentBreak > 0 || prev.currentPlayer === player ? prev : { ...prev, currentPlayer: player }));
+    // Choosing who breaks off during the frame break doesn't end the break.
+    commit(
+      (prev) => (prev.currentBreak > 0 || prev.currentPlayer === player ? prev : { ...prev, currentPlayer: player }),
+      true
+    );
   }
 
   function endFrame() {
@@ -327,13 +343,17 @@ export function LiveScoringPanel({
       frameScores: newFrameHistory,
     }).catch(() => {});
 
-    commit((prev) => ({
-      ...initialState(),
-      frameHistory: newFrameHistory,
-      ...carryHighestBreak(prev),
-      // Players alternate breaking off: player 1 breaks odd frames.
-      currentPlayer: newFrameHistory.length % 2 === 0 ? 1 : 2,
-    }));
+    commit(
+      (prev) => ({
+        ...initialState(),
+        frameHistory: newFrameHistory,
+        ...carryHighestBreak(prev),
+        // Players alternate breaking off: player 1 breaks odd frames.
+        currentPlayer: newFrameHistory.length % 2 === 0 ? 1 : 2,
+        frameBreak: true,
+      }),
+      true
+    );
   }
 
   async function finish() {
@@ -400,6 +420,7 @@ export function LiveScoringPanel({
       highestBreakSoFar: matchHighestBreak,
       highestBreakSoFarPlayerId,
       currentPlayer: state.currentPlayer,
+      inFrameBreak: state.frameBreak,
     }).catch(() => {});
   }, [
     match.id,
@@ -413,6 +434,7 @@ export function LiveScoringPanel({
     state.matchHighestBreak,
     state.matchHighestBreakPlayer,
     state.currentPlayer,
+    state.frameBreak,
   ]);
 
   const currentPlayerName = state.currentPlayer === 1 ? match.player1Name : match.player2Name;
@@ -425,6 +447,23 @@ export function LiveScoringPanel({
           Picked up where scoring left off.
           {match.currentPlayer ? "" : " If the wrong player is on strike, tap the player at the table."}
         </p>
+      ) : null}
+
+      {state.frameBreak ? (
+        <div className="space-y-3 rounded-2xl border border-primary/40 bg-primary-soft p-4">
+          <div>
+            <p className="font-heading text-base font-bold text-foreground">
+              Frame {state.frameHistory.length} done · frame break
+            </p>
+            <p className="mt-0.5 text-sm text-muted-foreground">
+              The table TV and stream show the club&apos;s ads until you start the next frame. Tap the player
+              breaking off if it isn&apos;t {currentPlayerName}.
+            </p>
+          </div>
+          <Button className="h-12 w-full text-base" onClick={startFrame}>
+            <Play className="size-4" /> Start Frame {state.frameHistory.length + 1}
+          </Button>
+        </div>
       ) : null}
 
       <div className="grid grid-cols-[1fr_auto_1fr] items-stretch gap-2">

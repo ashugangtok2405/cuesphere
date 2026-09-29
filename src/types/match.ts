@@ -35,4 +35,6 @@ export interface DrawMatch {
   frameScores: FrameScore[];
   /** Player at the table during live scoring; null if unknown. */
   currentPlayer: 1 | 2 | null;
+  /** Between frames: the referee has ended a frame and not started the next. */
+  inFrameBreak: boolean;
 }

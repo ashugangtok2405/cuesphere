@@ -29,6 +29,7 @@ interface MatchRow {
   reds_remaining: number | null;
   frame_scores: FrameScore[] | null;
   current_player?: number | null;
+  in_frame_break?: boolean | null;
 }
 
 function fromRow(row: MatchRow): DrawMatch {
@@ -58,6 +59,7 @@ function fromRow(row: MatchRow): DrawMatch {
     redsRemaining: row.reds_remaining ?? 15,
     frameScores: row.frame_scores ?? [],
     currentPlayer: row.current_player === 1 || row.current_player === 2 ? row.current_player : null,
+    inFrameBreak: row.in_frame_break === true,
   };
 }
 
@@ -157,6 +159,7 @@ export async function updateLiveProgress(
     highestBreakSoFar?: number;
     highestBreakSoFarPlayerId?: string | null;
     currentPlayer?: 1 | 2;
+    inFrameBreak?: boolean;
   }
 ): Promise<{ error?: string }> {
   const admin = createSupabaseAdminClient();
@@ -171,10 +174,14 @@ export async function updateLiveProgress(
       ? { highest_break_player_id: input.highestBreakSoFarPlayerId }
       : {}),
   };
-  const withPlayer = input.currentPlayer !== undefined ? { ...update, current_player: input.currentPlayer } : update;
-  let { error } = await admin.from("matches").update(withPlayer).eq("id", matchId);
-  // Databases without migration 0022 don't have current_player yet — save the rest.
-  if (error && withPlayer !== update && error.message.includes("current_player")) {
+  const withNewer = {
+    ...update,
+    ...(input.currentPlayer !== undefined ? { current_player: input.currentPlayer } : {}),
+    ...(input.inFrameBreak !== undefined ? { in_frame_break: input.inFrameBreak } : {}),
+  };
+  let { error } = await admin.from("matches").update(withNewer).eq("id", matchId);
+  // Databases without migrations 0022 / 0024 lack these columns yet — save the rest.
+  if (error && /current_player|in_frame_break/.test(error.message)) {
     ({ error } = await admin.from("matches").update(update).eq("id", matchId));
   }
   return { error: error?.message };

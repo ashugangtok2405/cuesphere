@@ -12,6 +12,8 @@ import { clubPath } from "@/lib/club-path";
 import {
   ACCENT_OPTIONS,
   MAX_SPONSOR_LOGOS,
+  MAX_AD_IMAGES,
+  AD_SECONDS_OPTIONS,
   youtubeEmbedUrl,
   type OverlayToggles,
 } from "@/types/stream";
@@ -165,6 +167,90 @@ export async function removeSponsorLogoAction(clubSlug: string, url: string): Pr
   const { error } = await saveStreamSettings(check.club.id, {
     ...settings,
     sponsorLogos: settings.sponsorLogos.filter((u) => u !== url),
+  });
+  if (error) return { success: false, error };
+  return done(clubSlug);
+}
+
+export async function saveAdOptionsAction(
+  clubSlug: string,
+  input: { enabled: boolean; secondsPerImage: number; onTv: boolean; onOverlay: boolean; afterMatch: boolean }
+): Promise<Result> {
+  const check = await requireClubStaff(clubSlug);
+  if (!check.ok) return { success: false, error: check.error };
+  if (!(AD_SECONDS_OPTIONS as readonly number[]).includes(input.secondsPerImage)) {
+    return { success: false, error: "Pick how long each ad shows." };
+  }
+
+  const settings = await getStreamSettings(check.club.id);
+  const { error } = await saveStreamSettings(check.club.id, {
+    ...settings,
+    ads: {
+      ...settings.ads,
+      enabled: !!input.enabled,
+      secondsPerImage: input.secondsPerImage,
+      onTv: !!input.onTv,
+      onOverlay: !!input.onOverlay,
+      afterMatch: !!input.afterMatch,
+    },
+  });
+  if (error) return { success: false, error };
+  return done(clubSlug);
+}
+
+const AD_TYPES: Record<string, string> = { "image/png": "png", "image/jpeg": "jpeg", "image/webp": "webp" };
+const MAX_AD_BYTES = 5 * 1024 * 1024;
+const AD_BUCKET = "club-covers";
+
+export async function uploadAdImageAction(clubSlug: string, formData: FormData): Promise<Result> {
+  const check = await requireClubStaff(clubSlug);
+  if (!check.ok) return { success: false, error: check.error };
+
+  const settings = await getStreamSettings(check.club.id);
+  if (settings.ads.images.length >= MAX_AD_IMAGES) {
+    return { success: false, error: `You can have up to ${MAX_AD_IMAGES} ads. Remove one first.` };
+  }
+
+  const file = formData.get("file");
+  if (!(file instanceof File)) return { success: false, error: "No file provided." };
+  const ext = AD_TYPES[file.type];
+  if (!ext) return { success: false, error: "Upload a PNG, JPG or WEBP image." };
+  if (file.size > MAX_AD_BYTES) return { success: false, error: "Ad images must be under 5MB." };
+
+  const admin = createSupabaseAdminClient();
+  const path = `${check.club.id}/ads/${Date.now()}.${ext}`;
+  const { error: uploadError } = await admin.storage
+    .from(AD_BUCKET)
+    .upload(path, Buffer.from(await file.arrayBuffer()), { contentType: file.type });
+  if (uploadError) return { success: false, error: uploadError.message };
+
+  const { data } = admin.storage.from(AD_BUCKET).getPublicUrl(path);
+  const { error } = await saveStreamSettings(check.club.id, {
+    ...settings,
+    ads: { ...settings.ads, images: [...settings.ads.images, data.publicUrl] },
+  });
+  if (error) return { success: false, error };
+  return done(clubSlug);
+}
+
+export async function removeAdImageAction(clubSlug: string, url: string): Promise<Result> {
+  const check = await requireClubStaff(clubSlug);
+  if (!check.ok) return { success: false, error: check.error };
+
+  const settings = await getStreamSettings(check.club.id);
+  if (!settings.ads.images.includes(url)) return { success: false, error: "Ad not found." };
+
+  // Best effort: remove the stored file too if it's one of ours.
+  const marker = `/${AD_BUCKET}/${check.club.id}/ads/`;
+  const at = url.indexOf(marker);
+  if (at !== -1) {
+    const admin = createSupabaseAdminClient();
+    await admin.storage.from(AD_BUCKET).remove([url.slice(at + AD_BUCKET.length + 2)]);
+  }
+
+  const { error } = await saveStreamSettings(check.club.id, {
+    ...settings,
+    ads: { ...settings.ads, images: settings.ads.images.filter((u) => u !== url) },
   });
   if (error) return { success: false, error };
   return done(clubSlug);

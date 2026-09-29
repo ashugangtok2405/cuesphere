@@ -5,6 +5,7 @@ import { Trophy } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { ScaledStage } from "@/features/table-display/components/scaled-stage";
+import { AdBreak, FrameBreakStrip, ResultStrip } from "@/features/table-display/components/ad-break";
 import { TableBall, COLOURS } from "@/features/table-display/components/table-ball";
 import { PlayerPhoto } from "@/features/table-display/components/player-photo";
 import { useTableBoard, type FrameBanner } from "@/features/table-display/use-table-board";
@@ -321,15 +322,30 @@ function IdleScreen({ board }: { board: TableBoard }) {
  * scoring happens on the referee's phone. */
 export function TvScoreboard({ initial, clubSlug, table }: { initial: TableBoard; clubSlug: string; table: number }) {
   const { board, screen, banner } = useTableBoard(initial, clubSlug, table);
+  const { ads, accent } = board.stream;
+  const adsReady = ads.enabled && ads.onTv && ads.images.length > 0;
+
+  // Ads fill the frame break (after the 8-second "frame won" card), and
+  // optionally the result screen once the match is over.
+  let adBreak: React.ReactNode = null;
+  if (adsReady && screen.kind === "live" && screen.match.inFrameBreak && !banner) {
+    adBreak = <FrameBreakStrip match={screen.match} accent={accent} table={board.table} />;
+  } else if (adsReady && ads.afterMatch && screen.kind === "result") {
+    adBreak = <ResultStrip match={screen.match} accent={accent} table={board.table} />;
+  }
 
   return (
     <ScaledStage background="#000">
-      <div className="relative flex size-full flex-col gap-8 bg-background px-14 py-12 text-foreground">
-        {screen.kind === "live" ? <LiveScreen board={board} match={screen.match} banner={banner} /> : null}
-        {screen.kind === "next" ? <NextScreen board={board} match={screen.match} /> : null}
-        {screen.kind === "result" ? <ResultScreen board={board} match={screen.match} /> : null}
-        {screen.kind === "idle" ? <IdleScreen board={board} /> : null}
-      </div>
+      {adBreak ? (
+        <AdBreak images={ads.images} secondsPerImage={ads.secondsPerImage} strip={adBreak} />
+      ) : (
+        <div className="relative flex size-full flex-col gap-8 bg-background px-14 py-12 text-foreground">
+          {screen.kind === "live" ? <LiveScreen board={board} match={screen.match} banner={banner} /> : null}
+          {screen.kind === "next" ? <NextScreen board={board} match={screen.match} /> : null}
+          {screen.kind === "result" ? <ResultScreen board={board} match={screen.match} /> : null}
+          {screen.kind === "idle" ? <IdleScreen board={board} /> : null}
+        </div>
+      )}
     </ScaledStage>
   );
 }

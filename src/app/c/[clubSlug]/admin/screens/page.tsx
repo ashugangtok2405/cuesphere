@@ -16,6 +16,7 @@ import { PairedTvList } from "@/features/club-admin/components/screens/paired-tv
 import { YoutubeLinkField } from "@/features/club-admin/components/screens/youtube-link-field";
 import { OverlayOptionsForm } from "@/features/club-admin/components/screens/overlay-options-form";
 import { SponsorLogosManager } from "@/features/club-admin/components/screens/sponsor-logos-manager";
+import { AdsManager } from "@/features/club-admin/components/screens/ads-manager";
 
 export const metadata: Metadata = { title: "TV & Stream" };
 
@@ -130,6 +131,11 @@ export default async function AdminScreensPage({
             );
           })}
         </div>
+      </section>
+
+      <section className="space-y-3">
+        <h2 className="font-heading text-lg font-bold text-foreground">Ads</h2>
+        <AdsManager clubSlug={clubSlug} ads={settings.ads} />
       </section>
 
       <section className="space-y-3">

@@ -6,6 +6,7 @@ import { Tv, Unlink } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { moveTvAction, unpairTvAction } from "@/app/actions/club-screen-actions";
 import { selectClass } from "@/features/club-admin/components/screens/pair-tv-form";
 
@@ -63,7 +64,7 @@ function PairedTvRow({ tv, clubSlug, tableCount, now }: { tv: PairedTv; clubSlug
       </label>
       <select
         id={`tv-${tv.id}`}
-        className={`${selectClass} w-32`}
+        className={cn(selectClass, "w-32")}
         value={tv.tableNumber ?? 1}
         disabled={busy}
         onChange={(e) => move(Number(e.target.value))}

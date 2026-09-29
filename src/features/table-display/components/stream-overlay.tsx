@@ -4,6 +4,7 @@ import Image from "next/image";
 import { Trophy } from "lucide-react";
 
 import { ScaledStage } from "@/features/table-display/components/scaled-stage";
+import { AdBreak, FrameBreakStrip, ResultStrip } from "@/features/table-display/components/ad-break";
 import { TableBall } from "@/features/table-display/components/table-ball";
 import { PlayerPhoto } from "@/features/table-display/components/player-photo";
 import { useTableBoard, type FrameBanner } from "@/features/table-display/use-table-board";
@@ -249,7 +250,24 @@ function ResultCard({ match }: { match: TableMatch }) {
  * as a Browser source in OBS above the camera; it follows the referee's scoring. */
 export function StreamOverlay({ initial, clubSlug, table }: { initial: TableBoard; clubSlug: string; table: number }) {
   const { board, screen, banner, showIntro } = useTableBoard(initial, clubSlug, table);
-  const { show, accent } = board.stream;
+  const { show, accent, ads } = board.stream;
+  const adsReady = ads.enabled && ads.onOverlay && ads.images.length > 0;
+
+  // During a frame break (after the "frame won" card) the ad covers the camera
+  // for stream viewers; optionally also after the match.
+  let adStrip: React.ReactNode = null;
+  if (adsReady && screen.kind === "live" && screen.match.inFrameBreak && !(banner && show.frameBanner)) {
+    adStrip = <FrameBreakStrip match={screen.match} accent={accent} table={board.table} />;
+  } else if (adsReady && ads.afterMatch && screen.kind === "result") {
+    adStrip = <ResultStrip match={screen.match} accent={accent} table={board.table} />;
+  }
+  if (adStrip) {
+    return (
+      <ScaledStage background="transparent">
+        <AdBreak images={ads.images} secondsPerImage={ads.secondsPerImage} strip={adStrip} />
+      </ScaledStage>
+    );
+  }
 
   let centre: React.ReactNode = null;
   if (screen.kind === "live") {
