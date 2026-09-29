@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
 import { ViewerProvider } from "@/components/shared/viewer-provider";
 import { AppBadgeClearer } from "@/components/shared/app-badge-clearer";
+import { ServiceWorkerRegister } from "@/components/shared/service-worker-register";
 import { getViewer } from "@/lib/auth/get-viewer";
 
 const poppins = Poppins({
@@ -43,6 +44,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: "#0b0e12",
+  // Lets the installed app draw under the notch; layouts pad with env(safe-area-inset-*).
+  viewportFit: "cover",
 };
 
 export default async function RootLayout({
@@ -68,6 +71,7 @@ export default async function RootLayout({
           <TooltipProvider delay={150}>
             <ViewerProvider viewer={viewer}>
               <AppBadgeClearer />
+              <ServiceWorkerRegister />
               {children}
               <Toaster theme="dark" position="top-right" richColors />
             </ViewerProvider>

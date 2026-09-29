@@ -280,3 +280,10 @@
   }
 }
 
+
+/* Leave room for the fixed bottom tab bar on phones. */
+@media (max-width: 767px) {
+  body:has(.mobile-tab-bar) {
+    padding-bottom: calc(4rem + env(safe-area-inset-bottom));
+  }
+}

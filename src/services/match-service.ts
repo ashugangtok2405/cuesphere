@@ -28,6 +28,7 @@ interface MatchRow {
   current_break_balls: BallColor[] | null;
   reds_remaining: number | null;
   frame_scores: FrameScore[] | null;
+  current_player?: number | null;
 }
 
 function fromRow(row: MatchRow): DrawMatch {
@@ -56,6 +57,7 @@ function fromRow(row: MatchRow): DrawMatch {
     currentBreakBalls: row.current_break_balls ?? [],
     redsRemaining: row.reds_remaining ?? 15,
     frameScores: row.frame_scores ?? [],
+    currentPlayer: row.current_player === 1 || row.current_player === 2 ? row.current_player : null,
   };
 }
 
@@ -154,23 +156,27 @@ export async function updateLiveProgress(
     redsRemaining?: number;
     highestBreakSoFar?: number;
     highestBreakSoFarPlayerId?: string | null;
+    currentPlayer?: 1 | 2;
   }
 ): Promise<{ error?: string }> {
   const admin = createSupabaseAdminClient();
-  const { error } = await admin
-    .from("matches")
-    .update({
-      current_frame_score_player1: input.currentFrameScorePlayer1,
-      current_frame_score_player2: input.currentFrameScorePlayer2,
-      current_break: input.currentBreak,
-      ...(input.currentBreakBalls !== undefined ? { current_break_balls: input.currentBreakBalls } : {}),
-      ...(input.redsRemaining !== undefined ? { reds_remaining: input.redsRemaining } : {}),
-      ...(input.highestBreakSoFar !== undefined ? { highest_break: input.highestBreakSoFar } : {}),
-      ...(input.highestBreakSoFarPlayerId !== undefined
-        ? { highest_break_player_id: input.highestBreakSoFarPlayerId }
-        : {}),
-    })
-    .eq("id", matchId);
+  const update = {
+    current_frame_score_player1: input.currentFrameScorePlayer1,
+    current_frame_score_player2: input.currentFrameScorePlayer2,
+    current_break: input.currentBreak,
+    ...(input.currentBreakBalls !== undefined ? { current_break_balls: input.currentBreakBalls } : {}),
+    ...(input.redsRemaining !== undefined ? { reds_remaining: input.redsRemaining } : {}),
+    ...(input.highestBreakSoFar !== undefined ? { highest_break: input.highestBreakSoFar } : {}),
+    ...(input.highestBreakSoFarPlayerId !== undefined
+      ? { highest_break_player_id: input.highestBreakSoFarPlayerId }
+      : {}),
+  };
+  const withPlayer = input.currentPlayer !== undefined ? { ...update, current_player: input.currentPlayer } : update;
+  let { error } = await admin.from("matches").update(withPlayer).eq("id", matchId);
+  // Databases without migration 0022 don't have current_player yet — save the rest.
+  if (error && withPlayer !== update && error.message.includes("current_player")) {
+    ({ error } = await admin.from("matches").update(update).eq("id", matchId));
+  }
   return { error: error?.message };
 }
 

@@ -3,49 +3,31 @@ import type { BallColor } from "@/features/live-match/components/ball-icon";
 
 const COLORS: BallColor[] = ["yellow", "green", "brown", "blue", "pink", "black"];
 
+/** What's left on the table: reds count plus which colours are still on. */
 export function BallTracker({
   redsRemaining,
-  availableColors,
-  onPot,
+  colorsOnTable,
+  pointsRemaining,
 }: {
   redsRemaining: number;
-  availableColors: BallColor[];
-  onPot?: (color: BallColor) => void;
+  colorsOnTable: BallColor[];
+  pointsRemaining: number;
 }) {
   return (
-    <div>
-      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-        Balls Remaining On Table {onPot ? "— click a ball to pot it" : ""}
-      </p>
-      <div className="flex flex-wrap items-end gap-3">
-        <button
-          type="button"
-          disabled={!onPot || redsRemaining === 0}
-          onClick={() => onPot?.("red")}
-          className="flex flex-col items-center gap-1 disabled:cursor-not-allowed"
-        >
-          <div className="relative">
-            <BallIcon color="red" className={redsRemaining === 0 ? "opacity-20" : ""} />
-            <span className="absolute -right-1.5 -top-1.5 flex size-4 items-center justify-center rounded-full bg-background text-[9px] font-bold text-foreground ring-1 ring-border">
-              {redsRemaining}
-            </span>
-          </div>
-          <span className="text-[10px] uppercase tracking-wide text-muted-foreground">Red</span>
-        </button>
-        {COLORS.map((color) => {
-          const available = availableColors.includes(color);
-          return (
-            <button
-              key={color}
-              type="button"
-              disabled={!onPot || !available}
-              onClick={() => onPot?.(color)}
-              className="disabled:cursor-not-allowed"
-            >
-              <BallIcon color={color} showLabel className={available ? "" : "opacity-20"} />
-            </button>
-          );
-        })}
+    <div className="rounded-2xl border border-border bg-card p-3.5">
+      <div className="mb-2.5 flex items-center justify-between text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        <span>On the table</span>
+        <span className="normal-case tracking-normal">{pointsRemaining} pts left</span>
+      </div>
+      <div className="flex items-center gap-2.5">
+        <span className="flex items-center gap-1.5 text-sm font-bold text-foreground">
+          <BallIcon color="red" size="sm" className={redsRemaining === 0 ? "opacity-20" : ""} />×{" "}
+          {redsRemaining}
+        </span>
+        <span className="h-5 w-px bg-border-strong" />
+        {COLORS.map((color) => (
+          <BallIcon key={color} color={color} size="sm" className={colorsOnTable.includes(color) ? "" : "opacity-15"} />
+        ))}
       </div>
     </div>
   );

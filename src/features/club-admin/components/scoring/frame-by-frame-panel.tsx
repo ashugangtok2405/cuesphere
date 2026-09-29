@@ -20,10 +20,16 @@ import { saveMatchProgressAction, finishMatchAction } from "@/app/actions/match-
 import type { DrawMatch } from "@/types/match";
 
 function initialFrames(match: DrawMatch): FrameEntry[] {
+  if (match.frameScores?.length) {
+    return match.frameScores.map((f, i) => ({
+      frame: f.frame ?? i + 1,
+      player1Score: f.player1Score,
+      player2Score: f.player2Score,
+    }));
+  }
   const total = match.framesWonPlayer1 + match.framesWonPlayer2;
   if (total === 0) return [];
-  // We only persist the running tally, not per-frame history, so
-  // reconstruct a single summary "frame" representing progress so far.
+  // Older matches only stored the running tally, so show it as one summary row.
   return [{ frame: 1, player1Score: match.framesWonPlayer1, player2Score: match.framesWonPlayer2 }];
 }
 
@@ -116,22 +122,39 @@ export function FrameByFramePanel({
 
         <FrameHistoryTable frames={frames} player1Name={match.player1Name} player2Name={match.player2Name} />
 
-        <div className="flex items-end gap-2">
-          <Input
-            type="number"
-            placeholder={`${match.player1Name} score`}
-            value={p1Input}
-            onChange={(e) => setP1Input(e.target.value)}
-          />
-          <Input
-            type="number"
-            placeholder={`${match.player2Name} score`}
-            value={p2Input}
-            onChange={(e) => setP2Input(e.target.value)}
-          />
-          <Button variant="outline" onClick={addFrame}>
-            <Plus className="size-4" /> Add Frame
-          </Button>
+        <div className="space-y-2 rounded-xl border border-border bg-background/40 p-3">
+          <p className="text-sm font-semibold text-foreground">Frame {frames.length + 1} score</p>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-[1fr_1fr_auto]">
+            <div className="space-y-1">
+              <Label htmlFor="fbfP1" className="truncate text-xs">
+                {match.player1Name}
+              </Label>
+              <Input
+                id="fbfP1"
+                type="number"
+                inputMode="numeric"
+                className="h-12 text-center font-tabular text-xl"
+                value={p1Input}
+                onChange={(e) => setP1Input(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="fbfP2" className="truncate text-xs">
+                {match.player2Name}
+              </Label>
+              <Input
+                id="fbfP2"
+                type="number"
+                inputMode="numeric"
+                className="h-12 text-center font-tabular text-xl"
+                value={p2Input}
+                onChange={(e) => setP2Input(e.target.value)}
+              />
+            </div>
+            <Button variant="outline" className="col-span-2 h-12 sm:col-span-1 sm:self-end" onClick={addFrame}>
+              <Plus className="size-4" /> Add Frame
+            </Button>
+          </div>
         </div>
 
         <div className="space-y-2">
@@ -159,12 +182,12 @@ export function FrameByFramePanel({
           </RadioGroup>
         </div>
 
-        <div className="flex flex-wrap gap-2">
-          <Button variant="outline" disabled={isSaving} onClick={handleSaveProgress}>
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+          <Button variant="outline" className="h-12 sm:h-9" disabled={isSaving} onClick={handleSaveProgress}>
             {isSaving ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}
             Save Progress
           </Button>
-          <Button disabled={isFinishing} onClick={handleFinish}>
+          <Button className="h-12 sm:h-9" disabled={isFinishing} onClick={handleFinish}>
             {isFinishing ? <Loader2 className="size-4 animate-spin" /> : <ShieldCheck className="size-4" />}
             Finish Match
           </Button>

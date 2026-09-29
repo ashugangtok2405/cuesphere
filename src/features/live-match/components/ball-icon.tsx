@@ -12,7 +12,7 @@ export const BALL_VALUES: Record<BallColor, number> = {
   black: 7,
 };
 
-const BALL_STYLES: Record<BallColor, string> = {
+export const BALL_STYLES: Record<BallColor, string> = {
   red: "bg-[#E53935] text-white",
   yellow: "bg-[#F5C518] text-black",
   green: "bg-[#2E7D32] text-white",

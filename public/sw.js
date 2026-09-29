@@ -1,3 +1,12 @@
+// Activate new versions straight away so an installed app picks up fixes on next open.
+self.addEventListener("install", () => {
+  self.skipWaiting();
+});
+
+self.addEventListener("activate", (event) => {
+  event.waitUntil(self.clients.claim());
+});
+
 async function updateBadgeFromNotifications() {
   if (!self.navigator?.setAppBadge) return;
   try {

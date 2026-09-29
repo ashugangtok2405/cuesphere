@@ -13,10 +13,12 @@ export function MatchStatusControl({
   clubSlug,
   matchId,
   status,
+  className,
 }: {
   clubSlug: string;
   matchId: string;
   status: MatchStatus;
+  className?: string;
 }) {
   const router = useRouter();
   const [isUpdating, setIsUpdating] = React.useState(false);
@@ -36,7 +38,7 @@ export function MatchStatusControl({
 
   if (status === "scheduled") {
     return (
-      <Button size="sm" variant="outline" disabled={isUpdating} onClick={() => setStatus("live")}>
+      <Button size="sm" variant="outline" className={className} disabled={isUpdating} onClick={() => setStatus("live")}>
         {isUpdating ? <Loader2 className="size-3.5 animate-spin" /> : <Radio className="size-3.5" />}
         Start Match
       </Button>
@@ -45,7 +47,7 @@ export function MatchStatusControl({
 
   if (status === "live") {
     return (
-      <Button size="sm" variant="outline" disabled={isUpdating} onClick={() => setStatus("completed")}>
+      <Button size="sm" variant="outline" className={className} disabled={isUpdating} onClick={() => setStatus("completed")}>
         {isUpdating ? <Loader2 className="size-3.5 animate-spin" /> : <CheckCircle2 className="size-3.5" />}
         End Match
       </Button>

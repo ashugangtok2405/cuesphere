@@ -98,6 +98,7 @@ export async function updateLiveProgressAction(
     redsRemaining?: number;
     highestBreakSoFar?: number;
     highestBreakSoFarPlayerId?: string | null;
+    currentPlayer?: 1 | 2;
   }
 ) {
   const check = await requireMatchStaff(matchId);

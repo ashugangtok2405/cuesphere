@@ -6,6 +6,7 @@ import { getClubBySlug } from "@/services/club-service";
 import { getClubTournamentById } from "@/services/club-tournament-service";
 import { getProfileById } from "@/services/profile-service";
 import { getStatsForPlayer } from "@/services/stats-service";
+import { getStreamSettings } from "@/services/stream-settings-service";
 import { MOCK_LIVE_MATCH } from "@/lib/mock/live-match";
 import { LiveMatchCentre } from "@/features/live-match/components/live-match-centre";
 import { LiveAutoRefresh } from "@/features/live-match/components/live-auto-refresh";
@@ -144,10 +145,16 @@ export default async function LiveMatchPage({
   if (!club) return null;
 
   if (match && match.clubId === club.id && match.status === "live") {
+    const streamSettings = await getStreamSettings(club.id);
+    const youtubeUrl = streamSettings.youtubeUrls[String(match.tableNumber)] ?? null;
     return (
       <>
         <LiveAutoRefresh />
-        <LiveMatchCentre match={buildView(match, tournament, photos, headToHead, playerStats)} clubSlug={clubSlug} />
+        <LiveMatchCentre
+          match={buildView(match, tournament, photos, headToHead, playerStats)}
+          clubSlug={clubSlug}
+          youtubeUrl={youtubeUrl}
+        />
       </>
     );
   }

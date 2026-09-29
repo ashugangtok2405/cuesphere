@@ -37,13 +37,41 @@ export function ScoringModeSelector({
 }) {
   return (
     <div>
-      <div className="mb-3 flex items-center justify-between">
+      {/* Phones: a compact segmented switch. Larger screens: descriptive cards. */}
+      <div
+        role="radiogroup"
+        aria-label="Scoring mode"
+        className="flex gap-1 rounded-2xl border border-border bg-card p-1 sm:hidden"
+      >
+        {MODES.map((m) => {
+          const isActive = m.value === mode;
+          return (
+            <button
+              key={m.value}
+              type="button"
+              role="radio"
+              aria-checked={isActive}
+              disabled={disabled}
+              onClick={() => onChange(m.value)}
+              className={cn(
+                "h-10 flex-1 rounded-xl text-[13px] font-medium transition-colors disabled:opacity-60",
+                isActive
+                  ? "bg-felt font-bold text-white ring-1 ring-inset ring-success/60"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              {m.label}
+            </button>
+          );
+        })}
+      </div>
+      <div className="mb-3 hidden items-center justify-between sm:flex">
         <div>
           <p className="text-sm font-semibold text-foreground">Scoring Mode</p>
           <p className="text-xs text-muted-foreground">Choose how you want to update match scores.</p>
         </div>
       </div>
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="hidden gap-3 sm:grid sm:grid-cols-3">
         {MODES.map((m) => {
           const isActive = m.value === mode;
           return (

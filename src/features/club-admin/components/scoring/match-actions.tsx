@@ -6,24 +6,31 @@ export function MatchActions({
   onEndFrame,
   onFinish,
   canUndo,
+  canEndFrame,
   isFinishing,
 }: {
   onUndo: () => void;
   onEndFrame: () => void;
   onFinish: () => void;
   canUndo: boolean;
+  canEndFrame: boolean;
   isFinishing: boolean;
 }) {
   return (
-    <div className="flex flex-wrap gap-2">
-      <Button variant="outline" size="sm" disabled={!canUndo} onClick={onUndo}>
-        <RotateCcw className="size-3.5" /> Undo Last
+    <div className="grid grid-cols-2 gap-2">
+      <Button variant="outline" className="h-12" disabled={!canUndo} onClick={onUndo}>
+        <RotateCcw className="size-4" /> Undo Last
       </Button>
-      <Button variant="outline" size="sm" onClick={onEndFrame}>
-        <FlagTriangleRight className="size-3.5" /> End Frame
+      <Button
+        variant="outline"
+        className="h-12 border-primary/40 text-primary"
+        disabled={!canEndFrame}
+        onClick={onEndFrame}
+      >
+        <FlagTriangleRight className="size-4" /> End Frame
       </Button>
-      <Button variant="destructive" size="sm" disabled={isFinishing} onClick={onFinish}>
-        {isFinishing ? <Loader2 className="size-3.5 animate-spin" /> : <ShieldCheck className="size-3.5" />}
+      <Button className="col-span-2 h-12" disabled={isFinishing} onClick={onFinish}>
+        {isFinishing ? <Loader2 className="size-4 animate-spin" /> : <ShieldCheck className="size-4" />}
         Finish Match
       </Button>
     </div>

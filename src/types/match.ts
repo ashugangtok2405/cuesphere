@@ -33,4 +33,6 @@ export interface DrawMatch {
   currentBreakBalls: BallColor[];
   redsRemaining: number;
   frameScores: FrameScore[];
+  /** Player at the table during live scoring; null if unknown. */
+  currentPlayer: 1 | 2 | null;
 }

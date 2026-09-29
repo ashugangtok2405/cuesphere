@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/sheet";
 import { useViewer } from "@/components/shared/viewer-provider";
 import { logoutAction } from "@/app/actions/auth-actions";
+import { PlatformTabBar } from "@/components/layout/platform-tab-bar";
 
 function Brand() {
   return (
@@ -42,141 +43,144 @@ export function PlatformHeader() {
   }
 
   return (
-    <header className="sticky top-0 z-50 glass">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
-        <Brand />
+    <>
+      <header className="sticky top-0 z-50 glass pt-[env(safe-area-inset-top)]">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+          <Brand />
 
-        {/* Desktop nav — collapses into the sheet menu below md */}
-        <div className="hidden items-center gap-2 md:flex">
-          <LinkButton href="/clubs" variant="ghost" size="sm">
-            Browse Clubs
-          </LinkButton>
-          <LinkButton href="/tournaments" variant="ghost" size="sm">
-            Tournaments
-          </LinkButton>
-          {!viewer.ownsClub ? (
-            <LinkButton href="/clubs/new" variant="outline" size="sm">
-              Create Your Club
+          {/* Desktop nav — collapses into the sheet menu below md */}
+          <div className="hidden items-center gap-2 md:flex">
+            <LinkButton href="/clubs" variant="ghost" size="sm">
+              Browse Clubs
             </LinkButton>
-          ) : null}
-          {viewer.user ? (
-            <>
-              <LinkButton href="/players" variant="ghost" size="sm">
-                Players
+            <LinkButton href="/tournaments" variant="ghost" size="sm">
+              Tournaments
+            </LinkButton>
+            {!viewer.ownsClub ? (
+              <LinkButton href="/clubs/new" variant="outline" size="sm">
+                Create Your Club
               </LinkButton>
-              <LinkButton href="/my-clubs" variant="ghost" size="sm">
-                My Clubs
-              </LinkButton>
-              <LinkButton href="/friends" variant="ghost" size="icon" aria-label="My Friends">
-                <Users className="size-4" />
-              </LinkButton>
-              <LinkButton href="/account/profile" variant="ghost" size="icon" aria-label="My Profile">
-                <UserCog className="size-4" />
-              </LinkButton>
-              <span className="hidden max-w-[10rem] truncate text-sm text-muted-foreground lg:inline">
-                {viewer.user.email}
-              </span>
-              <Button variant="outline" size="sm" onClick={handleLogout}>
-                <LogOut className="size-3.5" /> Logout
-              </Button>
-            </>
-          ) : (
-            <>
-              <LinkButton href="/login" variant="ghost" size="sm">
-                Login
-              </LinkButton>
-              <LinkButton href="/register" size="sm">
-                Register
-              </LinkButton>
-            </>
-          )}
-        </div>
+            ) : null}
+            {viewer.user ? (
+              <>
+                <LinkButton href="/players" variant="ghost" size="sm">
+                  Players
+                </LinkButton>
+                <LinkButton href="/my-clubs" variant="ghost" size="sm">
+                  My Clubs
+                </LinkButton>
+                <LinkButton href="/friends" variant="ghost" size="icon" aria-label="My Friends">
+                  <Users className="size-4" />
+                </LinkButton>
+                <LinkButton href="/account/profile" variant="ghost" size="icon" aria-label="My Profile">
+                  <UserCog className="size-4" />
+                </LinkButton>
+                <span className="hidden max-w-[10rem] truncate text-sm text-muted-foreground lg:inline">
+                  {viewer.user.email}
+                </span>
+                <Button variant="outline" size="sm" onClick={handleLogout}>
+                  <LogOut className="size-3.5" /> Logout
+                </Button>
+              </>
+            ) : (
+              <>
+                <LinkButton href="/login" variant="ghost" size="sm">
+                  Login
+                </LinkButton>
+                <LinkButton href="/register" size="sm">
+                  Register
+                </LinkButton>
+              </>
+            )}
+          </div>
 
-        {/* Mobile menu */}
-        <Sheet>
-          <SheetTrigger render={<Button variant="ghost" size="icon" aria-label="Open menu" className="md:hidden" />}>
-            <Menu className="size-5" />
-          </SheetTrigger>
-          <SheetContent side="right" className="w-full max-w-xs glass-strong">
-            <SheetHeader>
-              <SheetTitle>
-                <Brand />
-              </SheetTitle>
-            </SheetHeader>
-            <nav className="flex flex-col gap-1 px-4">
-              <SheetClose nativeButton={false} render={<Link href="/clubs" />}>
-                <span className="block rounded-lg px-3 py-2.5 text-sm font-medium text-foreground hover:bg-white/5">
-                  Browse Clubs
-                </span>
-              </SheetClose>
-              <SheetClose nativeButton={false} render={<Link href="/tournaments" />}>
-                <span className="block rounded-lg px-3 py-2.5 text-sm font-medium text-foreground hover:bg-white/5">
-                  Tournaments
-                </span>
-              </SheetClose>
-              {!viewer.ownsClub ? (
-                <SheetClose nativeButton={false} render={<Link href="/clubs/new" />}>
+          {/* Mobile menu */}
+          <Sheet>
+            <SheetTrigger render={<Button variant="ghost" size="icon" aria-label="Open menu" className="md:hidden" />}>
+              <Menu className="size-5" />
+            </SheetTrigger>
+            <SheetContent side="right" className="w-full max-w-xs glass-strong">
+              <SheetHeader>
+                <SheetTitle>
+                  <Brand />
+                </SheetTitle>
+              </SheetHeader>
+              <nav className="flex flex-col gap-1 px-4">
+                <SheetClose nativeButton={false} render={<Link href="/clubs" />}>
                   <span className="block rounded-lg px-3 py-2.5 text-sm font-medium text-foreground hover:bg-white/5">
-                    Create Your Club
+                    Browse Clubs
                   </span>
                 </SheetClose>
-              ) : null}
-              {viewer.user ? (
-                <>
-                  <SheetClose nativeButton={false} render={<Link href="/players" />}>
+                <SheetClose nativeButton={false} render={<Link href="/tournaments" />}>
+                  <span className="block rounded-lg px-3 py-2.5 text-sm font-medium text-foreground hover:bg-white/5">
+                    Tournaments
+                  </span>
+                </SheetClose>
+                {!viewer.ownsClub ? (
+                  <SheetClose nativeButton={false} render={<Link href="/clubs/new" />}>
                     <span className="block rounded-lg px-3 py-2.5 text-sm font-medium text-foreground hover:bg-white/5">
-                      Players
+                      Create Your Club
                     </span>
                   </SheetClose>
-                  <SheetClose nativeButton={false} render={<Link href="/my-clubs" />}>
-                    <span className="block rounded-lg px-3 py-2.5 text-sm font-medium text-foreground hover:bg-white/5">
-                      My Clubs
-                    </span>
-                  </SheetClose>
-                  <SheetClose nativeButton={false} render={<Link href="/friends" />}>
-                    <span className="block rounded-lg px-3 py-2.5 text-sm font-medium text-foreground hover:bg-white/5">
-                      My Friends
-                    </span>
-                  </SheetClose>
-                  <SheetClose nativeButton={false} render={<Link href="/account/profile" />}>
-                    <span className="block rounded-lg px-3 py-2.5 text-sm font-medium text-foreground hover:bg-white/5">
-                      My Profile
-                    </span>
-                  </SheetClose>
-                </>
-              ) : null}
-            </nav>
-            <div className="mt-4 flex flex-col gap-2 border-t border-border px-4 pt-4">
-              {viewer.user ? (
-                <>
-                  <p className="truncate px-1 text-xs text-muted-foreground">{viewer.user.email}</p>
-                  <SheetClose
-                    nativeButton={false}
-                    render={<Button variant="outline" onClick={handleLogout} />}
-                  >
-                    <LogOut className="size-3.5" /> Logout
-                  </SheetClose>
-                </>
-              ) : (
-                <>
-                  <SheetClose
-                    nativeButton={false}
-                    render={<Button variant="outline" nativeButton={false} render={<Link href="/login" />} />}
-                  >
-                    Login
-                  </SheetClose>
-                  <SheetClose
-                    nativeButton={false}
-                    render={<Button nativeButton={false} render={<Link href="/register" />} />}
-                  >
-                    Register
-                  </SheetClose>
-                </>
-              )}
-            </div>
-          </SheetContent>
-        </Sheet>
-      </div>
-    </header>
+                ) : null}
+                {viewer.user ? (
+                  <>
+                    <SheetClose nativeButton={false} render={<Link href="/players" />}>
+                      <span className="block rounded-lg px-3 py-2.5 text-sm font-medium text-foreground hover:bg-white/5">
+                        Players
+                      </span>
+                    </SheetClose>
+                    <SheetClose nativeButton={false} render={<Link href="/my-clubs" />}>
+                      <span className="block rounded-lg px-3 py-2.5 text-sm font-medium text-foreground hover:bg-white/5">
+                        My Clubs
+                      </span>
+                    </SheetClose>
+                    <SheetClose nativeButton={false} render={<Link href="/friends" />}>
+                      <span className="block rounded-lg px-3 py-2.5 text-sm font-medium text-foreground hover:bg-white/5">
+                        My Friends
+                      </span>
+                    </SheetClose>
+                    <SheetClose nativeButton={false} render={<Link href="/account/profile" />}>
+                      <span className="block rounded-lg px-3 py-2.5 text-sm font-medium text-foreground hover:bg-white/5">
+                        My Profile
+                      </span>
+                    </SheetClose>
+                  </>
+                ) : null}
+              </nav>
+              <div className="mt-4 flex flex-col gap-2 border-t border-border px-4 pt-4">
+                {viewer.user ? (
+                  <>
+                    <p className="truncate px-1 text-xs text-muted-foreground">{viewer.user.email}</p>
+                    <SheetClose
+                      nativeButton={false}
+                      render={<Button variant="outline" onClick={handleLogout} />}
+                    >
+                      <LogOut className="size-3.5" /> Logout
+                    </SheetClose>
+                  </>
+                ) : (
+                  <>
+                    <SheetClose
+                      nativeButton={false}
+                      render={<Button variant="outline" nativeButton={false} render={<Link href="/login" />} />}
+                    >
+                      Login
+                    </SheetClose>
+                    <SheetClose
+                      nativeButton={false}
+                      render={<Button nativeButton={false} render={<Link href="/register" />} />}
+                    >
+                      Register
+                    </SheetClose>
+                  </>
+                )}
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
+      </header>
+      <PlatformTabBar />
+    </>
   );
 }

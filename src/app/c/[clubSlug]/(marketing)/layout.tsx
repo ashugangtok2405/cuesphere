@@ -1,5 +1,6 @@
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
+import { ClubTabBar } from "@/components/layout/club-tab-bar";
 import { PageTransition } from "@/components/shared/page-transition";
 import { getSession } from "@/lib/auth/session";
 import { getClubViewer } from "@/lib/auth/get-club-viewer";
@@ -24,6 +25,7 @@ export default async function MarketingLayout({
         <PageTransition>{children}</PageTransition>
       </main>
       <Footer />
+      <ClubTabBar />
     </>
   );
 }
